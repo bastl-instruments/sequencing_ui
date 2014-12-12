@@ -12,7 +12,7 @@
 InstrumentBar::InstrumentBar() : hw_(0), buttonMap_(0), currentSelectedStatuses_(0), currentPlayingStatuses_(0), isActive_(true), instrumentCount_(10) {
 }
 
-void InstrumentBar::init(IHWLayer* hw, IButtonMap * buttonMap, unsigned char instrumentCount) {
+void InstrumentBar::init(ILEDHW* hw, IButtonMap * buttonMap, unsigned char instrumentCount) {
 	hw_ = hw;
 	buttonMap_ = buttonMap;
 	instrumentCount_ = instrumentCount;
@@ -20,11 +20,11 @@ void InstrumentBar::init(IHWLayer* hw, IButtonMap * buttonMap, unsigned char ins
 
 void InstrumentBar::setActive(bool isActive) {
 	isActive_ = isActive;
-	for (unsigned char i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
+	for (unsigned char i = 0; i < instrumentCount_; i++) {
 		if (isActive && GETBIT(currentPlayingStatuses_, i)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), IHWLayer::ON);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::ON);
 		} else {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), IHWLayer::OFF);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::OFF);
 		}
 	}
 }
@@ -33,10 +33,10 @@ void InstrumentBar::setInstrumentSelected(unsigned char instrumentIndex, bool is
 	SETBIT(currentSelectedStatuses_, instrumentIndex, isSelected);
 	if (isActive_) {
 		if (isSelected && !GETBIT(currentPlayingStatuses_, instrumentIndex)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), IHWLayer::DULLON);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::DULLON);
 		}
 		if (!isSelected && !GETBIT(currentPlayingStatuses_, instrumentIndex)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), IHWLayer::OFF);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::OFF);
 		}
 	}
 }
@@ -45,10 +45,10 @@ void InstrumentBar::setInstrumentPlaying(unsigned char instrumentIndex, bool isP
 	SETBIT(currentPlayingStatuses_, instrumentIndex, isPlaying);
 	if (isActive_) {
 		if (isPlaying) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), IHWLayer::ON);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::ON);
 		} else {
 			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex),
-						GETBIT(currentSelectedStatuses_, instrumentIndex) ? IHWLayer::DULLON : IHWLayer::OFF );
+						GETBIT(currentSelectedStatuses_, instrumentIndex) ? ILEDHW::DULLON : ILEDHW::OFF );
 		}
 	}
 }
@@ -57,7 +57,7 @@ void InstrumentBar::resetSelected() {
 	for (unsigned char i = 0; i < instrumentCount_; i++) {
 		SETBIT(currentSelectedStatuses_, i, false);
 		if (!GETBIT(currentPlayingStatuses_, i)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), IHWLayer::OFF);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::OFF);
 		}
 	}
 }

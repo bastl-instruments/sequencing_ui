@@ -8,21 +8,19 @@
 #ifndef INSTRUMENTBAR_H_
 #define INSTRUMENTBAR_H_
 
-#include <IHWLayer.h>
+#include <ILEDHW.h>
 #include "IButtonMap.h"
-
-#define NUMBER_OF_INSTRUMENTS 10
 
 class InstrumentBar {
 public:
 	InstrumentBar();
-	void init(IHWLayer * hw, IButtonMap * buttonMap_, unsigned char instrumentCount);
+	void init(ILEDHW * hw, IButtonMap * buttonMap_, unsigned char instrumentCount);
 	void setActive(bool isActive);
 	void setInstrumentSelected(unsigned char instrumentIndex, bool isSelected);
 	void setInstrumentPlaying(unsigned char instrumentIndex, bool isPlaying);
 	void resetSelected();
 private:
-	IHWLayer * hw_;
+	ILEDHW * hw_;
 	IButtonMap * buttonMap_;
 	int currentSelectedStatuses_;
 	int currentPlayingStatuses_;
