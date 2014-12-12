@@ -37,7 +37,7 @@ SetStepView::~SetStepView() {
 	delete drumStepView_;
 }
 
-void SetStepView::init(IHWLayer * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
+void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
 		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, bool useVelocities) {
 	hw_ = hw;
 	memory_ = memory;

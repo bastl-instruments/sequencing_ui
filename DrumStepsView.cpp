@@ -20,10 +20,10 @@ DrumStepsView::DrumStepsView() :
 DrumStepsView::~DrumStepsView() {
 }
 
-	void DrumStepsView::init (IHWLayer * hw, IButtonMap * buttonMap) {
+	void DrumStepsView::init (ILEDsAndButtonsHW * hw, IButtonMap * buttonMap) {
 		hw_ = hw;
 		buttonMap_ = buttonMap;
-		stepSwitches_.init(hw_, buttonMap_->getStepButtonArray(), 16, IHWLayer::UP);
+		stepSwitches_.init(hw_, buttonMap_->getStepButtonArray(), 16, IButtonHW::UP);
 	}
 
 	void DrumStepsView::update() {
@@ -31,7 +31,7 @@ DrumStepsView::~DrumStepsView() {
 		stepSwitches_.update();
 		currentDownButton_ = -1;
 		for (unsigned char i = 0; i < 16; i++) {
-			if (hw_->getButtonState(buttonMap_->getStepButtonIndex(i)) == IHWLayer::DOWN) {
+			if (hw_->getButtonState(buttonMap_->getStepButtonIndex(i)) == IButtonHW::DOWN) {
 				currentDownButton_ = i;
 			}
 			bool stepValue = (currentStatus_ & (1 << i)) != 0;

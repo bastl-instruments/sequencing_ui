@@ -9,7 +9,7 @@
 #define DRUMSTEPSVIEW_H_
 
 #include <IView.h>
-#include <IHWLayer.h>
+#include <ILEDsAndButtonsHW.h>
 #include <Switches.h>
 #include "IButtonMap.h"
 
@@ -17,7 +17,7 @@ class DrumStepsView : public IView {
 public:
 	DrumStepsView();
 	~DrumStepsView();
-	void init(IHWLayer * hw, IButtonMap * buttonMap);
+	void init(ILEDsAndButtonsHW * hw, IButtonMap * buttonMap);
 	void update();
 	void setStatus(unsigned int status);
 	bool getDownButton(unsigned char & button);
@@ -26,7 +26,7 @@ public:
 	void setHighlightedButton(unsigned char index);
 	void setIgnoreOffs(bool ignoreOffs);
 private:
-	IHWLayer * hw_;
+	ILEDsAndButtonsHW * hw_;
 	IButtonMap * buttonMap_;
 	unsigned int currentStatus_;
 	unsigned int lastStatus_;

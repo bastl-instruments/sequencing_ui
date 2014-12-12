@@ -9,7 +9,7 @@
 #define SETSTEPVIEW_H_
 
 #include <IView.h>
-#include <IHWLayer.h>
+#include <ILEDsAndButtonsHW.h>
 #include <IStepMemory.h>
 #include <RadioButtons.h>
 #include <Switches.h>
@@ -22,14 +22,14 @@ class SetStepView : public IView {
 public:
 	SetStepView();
 	~SetStepView();
-	void init(IHWLayer * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
+	void init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
 			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, bool useVelocities);
 	void update();
 	void updateMutes();
 	void updateConfiguration();
 	void updateVelocity();
 private:
-	IHWLayer * hw_;
+	ILEDsAndButtonsHW * hw_;
 	IStepMemory * memory_;
 	Player * player_;
 	InstrumentBar * instrumentBar_;
