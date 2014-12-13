@@ -38,7 +38,7 @@ SetStepView::~SetStepView() {
 }
 
 void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, bool useVelocities) {
+		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument, bool useVelocities) {
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
@@ -47,6 +47,7 @@ void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * pl
 	currentPattern_ = pattern;
 	instrumentCount_ = instrumentCount;
 	useVelocities_ = useVelocities;
+	currentInstrumentIndex_ = initialInstrument;
 	panButtons_ = new RadioButtons(hw, buttonMap_->getSubStepButtonArray(), 4);
 	subStepSwitches_.init(hw, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_ = new RadioButtons(hw, buttonMap_->getInstrumentButtonArray(), instrumentCount_);

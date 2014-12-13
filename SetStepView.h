@@ -23,11 +23,12 @@ public:
 	SetStepView();
 	~SetStepView();
 	void init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, bool useVelocities);
+			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument, bool useVelocities);
 	void update();
 	void updateMutes();
 	void updateConfiguration();
 	void updateVelocity();
+	unsigned char getSelectedIndstrumentIndex();
 private:
 	ILEDsAndButtonsHW * hw_;
 	IStepMemory * memory_;
@@ -54,5 +55,9 @@ private:
 	bool useVelocities_;
 
 };
+
+inline unsigned char SetStepView::getSelectedIndstrumentIndex() {
+	return currentInstrumentIndex_;
+}
 
 #endif /* SETSTEPVIEW_H_ */
