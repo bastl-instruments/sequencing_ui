@@ -18,7 +18,7 @@ public:
 	DrumStepsView();
 	~DrumStepsView();
 	void init(ILEDsAndButtonsHW * hw, IButtonMap * buttonMap);
-	void update();
+	virtual void update();
 	void setStatus(unsigned int status);
 	bool getDownButton(unsigned char & button);
 	unsigned int getNewOffs();
