@@ -9,7 +9,7 @@
 #include <BitArrayOperations.h>
 
 
-InstrumentBar::InstrumentBar() : hw_(0), buttonMap_(0), currentSelectedStatuses_(0), currentPlayingStatuses_(0), isActive_(true), instrumentCount_(10) {
+InstrumentBar::InstrumentBar() : hw_(0), buttonMap_(0), instrumentCount_(10), currentSelectedStatuses_(0), currentPlayingStatuses_(0), isActive_(true) {
 }
 
 void InstrumentBar::init(ILEDHW* hw, IButtonMap * buttonMap, unsigned char instrumentCount) {
