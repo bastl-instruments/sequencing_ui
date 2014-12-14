@@ -109,7 +109,7 @@ void SetStepView::update() {
 	if (instrumentButtons_->getSelectedButton(newInstrument) && currentInstrumentIndex_ != newInstrument) {
 		currentInstrumentIndex_ = newInstrument;
 		currentPanIndex_ = 0;
-		panButtons_->setSelectedButton(0);
+		panButtons_->resetSelection();
 		updateConfiguration();
 		return;
 	}
@@ -158,10 +158,19 @@ void SetStepView::update() {
 
 
 	unsigned char newPan = 0;
-	if (panButtons_->getSelectedButton(newPan) && currentPanIndex_ != newPan) {
-		currentPanIndex_ = newPan;
-		updateConfiguration();
-		return;
+	if (panButtons_->getSelectedButton(newPan)) {
+		if (currentPanIndex_ != newPan) {
+			currentPanIndex_ = newPan;
+			updateConfiguration();
+			return;
+		}
+	} else {
+		newPan = player_->getCurrentInstrumentStep(currentInstrumentIndex_) / 16;
+		if (currentPanIndex_ != newPan) {
+			currentPanIndex_ = newPan;
+			updateConfiguration();
+			return;
+		}
 	}
 
 	unsigned int newOffs = drumStepView_->getNewOffs();
