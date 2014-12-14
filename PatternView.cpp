@@ -11,7 +11,6 @@
 PatternView::PatternView() : hw_(0), settings_(0), memory_(0), instrumentBar_(0),
 							 patternSelectRadioButtons_(0),
 							 currentPattern_(0) {
-  currentInstrumentStatuses_ = 0;
 }
 
 PatternView::~PatternView() {
@@ -38,11 +37,9 @@ void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepM
 
 void PatternView::reflectPatternChange() {
 	settings_->setCurrentPattern(currentPattern_);
-	memory_->getPatternSettings(/*currentPattern_*/0, &currentInstrumentStatuses_);
 	for (unsigned char i = 0; i < 6; i++) {
-		bool instrumentStatus = GETBIT(currentInstrumentStatuses_, i);
+		bool instrumentStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
-		settings_->setInstrumentOn(Step::DRUM, i, instrumentStatus);
 		instrumentSwitches_.setStatus(i, instrumentStatus);
 	}
 }
@@ -61,11 +58,9 @@ void PatternView::update() {
 	}
 	for (unsigned char i = 0; i < 6; i++) {
 		bool newStatus = instrumentSwitches_.getStatus(i);
-		bool oldStatus = GETBIT(currentInstrumentStatuses_, i);
+		bool oldStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		if (newStatus != oldStatus) {
 			settings_->setInstrumentOn(Step::DRUM, i, newStatus);
-			SETBIT(currentInstrumentStatuses_, i, newStatus);
-			memory_->setPatternSettings(/*currentPattern_*/ 0, &currentInstrumentStatuses_);
 			instrumentBar_->setInstrumentSelected(i, newStatus);
 		}
 	}

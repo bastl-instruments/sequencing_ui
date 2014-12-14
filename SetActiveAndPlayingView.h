@@ -44,8 +44,6 @@ private:
 	RadioButtons * panButtons_;
 	Switches instrumentButtons_;
 
-	unsigned char currentInstrumentStatuses_;
-
 };
 
 #endif /* SETACTIVEANDPLAYINGVIEW_H_ */

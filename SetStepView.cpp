@@ -71,7 +71,7 @@ void SetStepView::updateConfiguration() {
 
 void SetStepView::updateMutes() {
 	unsigned char data[4] = {0, 0, 0, 0};
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPattern_, currentPanIndex_ * 2, data);
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2, data);
 	currentStatuses_ = ~((((unsigned int)data[3]) << 8) | data[2]);
 	drumStepView_->setStatus(currentStatuses_);
 }
@@ -119,7 +119,7 @@ void SetStepView::update() {
 		if (!inSubStepMode_) {
 			inSubStepMode_ = true;
 			drumStepView_->setIgnoreOffs(false);
-			DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + currentButtonDown);
+			DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
 			bool anyOn = false;
 			for (unsigned char i = 0; i < 4; i++) {
 				bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
@@ -129,7 +129,7 @@ void SetStepView::update() {
 			}
 			if (!anyOn) {
 				step.setSubStep(0, currentVelocity_);
-				memory_->setDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + currentButtonDown, step);
+				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
 				hw_->setLED(buttonMap_->getSubStepButtonIndex(0), ILEDHW::ON);
 				subStepSwitches_.setStatus(0, true);
 			}
@@ -142,14 +142,14 @@ void SetStepView::update() {
 	}
 	if (inSubStepMode_) {
 		subStepSwitches_.update();
-		DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + currentButtonDown);
+		DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
 		for (unsigned char i = 0; i < 4; i++) {
 			bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
 			if (substepHasNote != subStepSwitches_.getStatus(i)) {
 				drumStepView_->setIgnoreOffs(true);
 				step.setSubStep(i, substepHasNote ? DrumStep::OFF : currentVelocity_);
 				hw_->setLED(buttonMap_->getSubStepButtonIndex(i), !substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
-				memory_->setDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + currentButtonDown, step);
+				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
 			}
 		}
 	} else {
@@ -171,9 +171,9 @@ void SetStepView::update() {
 			bool changeToOn = GETBIT(newOns, i);
 			bool changeToOff = GETBIT(newOffs, i);
 			if (changeToOn || changeToOff) {
-				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + i);
+				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + i);
 				step.setMuted(changeToOff);
-				memory_->setDrumStep(currentInstrumentIndex_, currentPattern_, (currentPanIndex_ * 16) + i, step);
+				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + i, step);
 			}
 
 		}

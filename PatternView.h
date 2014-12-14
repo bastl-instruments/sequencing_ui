@@ -34,8 +34,6 @@ private:
 	//Controls
 	Switches instrumentSwitches_;
 	RadioButtons * patternSelectRadioButtons_;
-
-	unsigned char currentInstrumentStatuses_;
 	unsigned char currentPattern_;
 
 	void reflectPatternChange();

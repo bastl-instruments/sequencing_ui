@@ -18,8 +18,7 @@ SetActiveAndPlayingView::SetActiveAndPlayingView() : hw_(0),
 								 currentPanIndex_(0),
 								 currentInstrumentIndex_(0),
 								 currentStatuses_(0),
-								 panButtons_(0),
-								 currentInstrumentStatuses_(0){
+								 panButtons_(0){
 }
 
 SetActiveAndPlayingView::~SetActiveAndPlayingView() {
@@ -44,11 +43,9 @@ void SetActiveAndPlayingView::updateConfiguration() {
 	for (unsigned char i = 0; i < 4; i++) {
 		hw_->setLED(buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
 	}
-	memory_->getPatternSettings(0, &currentInstrumentStatuses_);
 	for (unsigned char i = 0; i < 6; i++) {
-		bool instrumentStatus = GETBIT(currentInstrumentStatuses_, i);
+		bool instrumentStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
-		settings_->setInstrumentOn(Step::DRUM, i, instrumentStatus);
 		instrumentButtons_.setStatus(i, instrumentStatus);
 	}
 
@@ -57,7 +54,7 @@ void SetActiveAndPlayingView::updateConfiguration() {
 
 void SetActiveAndPlayingView::updateActives() {
 	unsigned char data[4] = {0, 0, 0, 0};
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPattern_, currentPanIndex_ * 2,  data);
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2,  data);
 	for (unsigned char i = 0; i < 16; i++) {
 		bool stepActive = GETBIT(data[i / 8], i % 8);
 		hw_->setLED(buttonMap_->getStepButtonIndex(i), stepActive ? ILEDHW::ON : ILEDHW::OFF);
@@ -72,11 +69,9 @@ void SetActiveAndPlayingView::update() {
 	// Update playing instruments settings
 	for (unsigned char i = 0; i < 6; i++) {
 		bool newStatus = instrumentButtons_.getStatus(i);
-		bool oldStatus = GETBIT(currentInstrumentStatuses_, i);
+		bool oldStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		if (newStatus != oldStatus) {
 			settings_->setInstrumentOn(Step::DRUM, i, newStatus);
-			SETBIT(currentInstrumentStatuses_, i, newStatus);
-			memory_->setPatternSettings(/*currentPattern_*/ 0, &currentInstrumentStatuses_);
 			instrumentBar_->setInstrumentSelected(i, newStatus);
 		}
 	}
@@ -96,16 +91,16 @@ void SetActiveAndPlayingView::update() {
 			//Update
 			currentState ? SETBITTRUE(currentStatuses_, i) : SETBITFALSE(currentStatuses_, i);
 			if (shift) {
-				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, currentPattern_, pressedStep);
+				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, pressedStep);
 				step.setActive(!step.isActive());
-				memory_->setDrumStep(currentInstrumentIndex_, currentPattern_, pressedStep, step);
+				memory_->setDrumStep(currentInstrumentIndex_, pressedStep, step);
 				hw_->setLED(buttonMap_->getStepButtonIndex(i), step.isActive() ? ILEDHW::ON : ILEDHW::OFF);
 			} else if (currentState) {
 				for (int stepIndex = 0; stepIndex < 64; stepIndex++) {
 					bool newState = stepIndex <= pressedStep;
-					DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, currentPattern_, stepIndex);
+					DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, stepIndex);
 					step.setActive(newState);
-					memory_->setDrumStep(currentInstrumentIndex_, currentPattern_, stepIndex, step);
+					memory_->setDrumStep(currentInstrumentIndex_, stepIndex, step);
 					if (stepIndex / 16 == currentPanIndex_) {
 						hw_->setLED(buttonMap_->getStepButtonIndex(stepIndex % 16), newState ? ILEDHW::ON : ILEDHW::OFF);
 					}
