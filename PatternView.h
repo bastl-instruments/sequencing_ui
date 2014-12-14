@@ -34,9 +34,12 @@ private:
 	//Controls
 	Switches instrumentSwitches_;
 	RadioButtons * patternSelectRadioButtons_;
+	RadioButtons * panSelectRadioButtons_;
 	unsigned char currentPattern_;
+	unsigned char currentPan_;
 
-	void reflectPatternChange();
+	void updatePan();
+	void updateLEDsForPan();
 };
 
 #endif /* PATTERNVIEW_H_ */

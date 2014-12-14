@@ -10,11 +10,14 @@
 
 PatternView::PatternView() : hw_(0), settings_(0), memory_(0), instrumentBar_(0),
 							 patternSelectRadioButtons_(0),
-							 currentPattern_(0) {
+							 panSelectRadioButtons_(0),
+							 currentPattern_(0),
+							 currentPan_(0) {
 }
 
 PatternView::~PatternView() {
 	delete patternSelectRadioButtons_;
+	delete panSelectRadioButtons_;
 }
 
 void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory, InstrumentBar * instrumentBar, IButtonMap * buttonMap) {
@@ -24,19 +27,17 @@ void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepM
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
 	currentPattern_ = settings_->getCurrentPattern();
+	currentPan_ = currentPattern_ / 16;
 
 	instrumentSwitches_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
 	patternSelectRadioButtons_ = new RadioButtons(hw_, buttonMap_->getStepButtonArray(), 16);
-	patternSelectRadioButtons_->setSelectedButton(currentPattern_);
+	patternSelectRadioButtons_->setSelectedButton(currentPattern_ % 16);
+	panSelectRadioButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	panSelectRadioButtons_->setSelectedButton(currentPan_);
 
-	for (unsigned char i = 0; i < 16; i++) {
-		hw_->setLED(buttonMap_->getStepButtonIndex(i), (i == currentPattern_)  ? ILEDHW::ON : ILEDHW::OFF);
-	}
-	reflectPatternChange();
-}
+	updateLEDsForPan();
 
-void PatternView::reflectPatternChange() {
-	settings_->setCurrentPattern(currentPattern_);
+	//Present instrument settings
 	for (unsigned char i = 0; i < 6; i++) {
 		bool instrumentStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
@@ -44,16 +45,49 @@ void PatternView::reflectPatternChange() {
 	}
 }
 
+void PatternView::updateLEDsForPan() {
+
+	for (unsigned char panIndex = 0; panIndex < 4; panIndex++) {
+		hw_->setLED(buttonMap_->getSubStepButtonIndex(panIndex), currentPan_ == panIndex ? ILEDHW::ON : ILEDHW::OFF);
+	}
+
+	unsigned char selectedButtonIndex;
+	bool itemSelected = patternSelectRadioButtons_->getSelectedButton(selectedButtonIndex);
+	for (unsigned char i = 0; i < 16; i++) {
+		hw_->setLED(buttonMap_->getStepButtonIndex(i), (itemSelected && (selectedButtonIndex == i)) ? ILEDHW::ON : ILEDHW::OFF);
+	}
+}
+
+void PatternView::updatePan() {
+	panSelectRadioButtons_->update();
+	unsigned char newPan;
+	if (panSelectRadioButtons_->getSelectedButton(newPan) && newPan != currentPan_) {
+		if (currentPattern_ / 16 == currentPan_) {
+			patternSelectRadioButtons_->resetSelection();
+		}
+		currentPan_ = newPan;
+		if (currentPattern_ / 16 == currentPan_) {
+			patternSelectRadioButtons_->setSelectedButton(currentPattern_ % 16);
+		}
+		updateLEDsForPan();
+	}
+}
+
 void PatternView::update() {
+
+	updatePan();
+
 	patternSelectRadioButtons_->update();
 	instrumentSwitches_.update();
 
 	unsigned char newPattern = 0;
-	if (patternSelectRadioButtons_->getSelectedButton(newPattern) && newPattern != currentPattern_) {
-		hw_->setLED(buttonMap_->getStepButtonIndex(currentPattern_), ILEDHW::OFF);
-		hw_->setLED(buttonMap_->getStepButtonIndex(newPattern), ILEDHW::ON);
+	bool somethingSelected = patternSelectRadioButtons_->getSelectedButton(newPattern);
+	newPattern += (currentPan_ * 16);
+	if (somethingSelected && (newPattern != currentPattern_)) {
+		hw_->setLED(buttonMap_->getStepButtonIndex(currentPattern_ % 16), ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getStepButtonIndex(newPattern % 16), ILEDHW::ON);
+		settings_->setCurrentPattern(newPattern);
 		currentPattern_ = newPattern;
-		reflectPatternChange();
 		return;
 	}
 	for (unsigned char i = 0; i < 6; i++) {
