@@ -12,26 +12,26 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 settings_(0),
 								 instrumentBar_(0),
 								 buttonMap_(0),
-								 panButtons_(0),
-								 currentPattern_(0) {
+								 panButtons_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
-	delete panButtons_;
+	//delete panButtons_;
+	instrumentBar_->setActive(true);
 }
 
 void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settings,
-						 	 	 	 	InstrumentBar * instrumentBar, IButtonMap * buttonMap, unsigned char selectedPattern) {
+						 	 	 	 	InstrumentBar * instrumentBar, IButtonMap * buttonMap) {
 	hw_ = hw;
 	settings_ = settings;
-	currentPattern_ = selectedPattern;
 	instrumentBar_ = instrumentBar;
+	instrumentBar_->setActive(false);
 	buttonMap_ = buttonMap;
-	panButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	//panButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
 
 	//Update pan buttons so it selects pan where the selected pattern is
-	for (unsigned char i = 0; i < 4; i++) {
+	/*for (unsigned char i = 0; i < 4; i++) {
 		bool inCurrentPan = (i == (currentPattern_ / 16));
 		hw_->setLED(buttonMap_->getSubStepButtonIndex(i), inCurrentPan ? ILEDHW::ON : ILEDHW::OFF);
 		if (inCurrentPan) {
@@ -41,16 +41,18 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 
 	updatePan(false);
 
+	*/
+
 	for (unsigned char i = 0; i < 6; i++) {
 		bool isOn = settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
-		instrumentBar_->setInstrumentSelected(i, isOn);
+		hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), isOn ? ILEDHW::ON : ILEDHW::OFF);
 		instrumentButtons_.setStatus(i, isOn);
 	}
 
 }
 
 void SettingsAndFunctionsView::updatePan(bool readHWStatus) {
-	if (readHWStatus) {
+	/*if (readHWStatus) {
 		panButtons_->update();
 	}
 	unsigned char selectedPan;
@@ -59,7 +61,7 @@ void SettingsAndFunctionsView::updatePan(bool readHWStatus) {
 	for (unsigned char i = 0; i < 16; i++) {
 		bool currentButton = (i == (currentPattern_ % 16));
 		hw_->setLED(buttonMap_->getStepButtonIndex(i), inCurrentPan && currentButton ? ILEDHW::ON : ILEDHW::OFF);
-	}
+	}*/
 }
 
 void SettingsAndFunctionsView::update() {
@@ -73,12 +75,12 @@ void SettingsAndFunctionsView::update() {
 		PlayerSettings::DrumInstrumentEventType newType = instrumentButtons_.getStatus(i) ?
 				PlayerSettings::GATE : PlayerSettings::TRIGGER;
 		if (currentType != newType) {
-			instrumentBar_->setInstrumentSelected(i, newType == PlayerSettings::GATE);
+			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), newType == PlayerSettings::GATE ? ILEDHW::ON : ILEDHW::OFF);
 			settings_->setDrumInstrumentEventType(i, newType);
 		}
 	}
 
-	for (unsigned char i = 0; i < 16; i++) {
+	/*for (unsigned char i = 0; i < 16; i++) {
 		if (hw_->getButtonState(i) == IButtonHW::DOWN) {
 			unsigned char currentPan;
 			panButtons_->getSelectedButton(currentPan);
@@ -89,6 +91,6 @@ void SettingsAndFunctionsView::update() {
 				hw_->setLED(currentPattern_ % 16, ILEDHW::ON);
 			}
 		}
-	}
+	}*/
 }
 
