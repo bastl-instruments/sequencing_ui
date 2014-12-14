@@ -13,19 +13,25 @@
 #include <ILEDsAndButtonsHW.h>
 #include <StepRecorder.h>
 #include "DrumStepsView.h"
-
+#include <Player.h>
+#include <IStepMemory.h>
 
 class PlayRecordView : public IView {
 public:
 	PlayRecordView();
 	~PlayRecordView();
-	void init(IButtonHW * hw, StepRecorder * recorder, IButtonMap * buttonMap);
+	void init(ILEDsAndButtonsHW * hw, StepRecorder * recorder, IButtonMap * buttonMap, StepSynchronizer * synchronizer);
 	virtual void update();
 private:
-	IButtonHW * hw_;
+	ILEDsAndButtonsHW * hw_;
 	StepRecorder * recorder_;
 	IButtonMap * buttonMap_;
 	unsigned int currentStatus_;
+	StepSynchronizer * synchronizer_;
+	unsigned char lastStepIndex_;
+	bool turnOffStep_;
+
+	void updateStatusView();
 };
 
 #endif /* PLAYRECORDVIEW_H_ */
