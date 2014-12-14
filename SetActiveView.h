@@ -23,7 +23,7 @@ public:
 	SetActiveView();
 	~SetActiveView();
 	void init(	ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char pattern);
+			IButtonMap * buttonMap);
 	void update();
 	void updateActives();
 	void updateConfiguration();
@@ -34,8 +34,6 @@ private:
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 
-
-	unsigned char currentPattern_;
 	unsigned char currentPanIndex_;
 	unsigned char currentInstrumentIndex_;
 
