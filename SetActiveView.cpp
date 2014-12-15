@@ -26,12 +26,14 @@ SetActiveView::~SetActiveView() {
 }
 
 void SetActiveView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player,
-						 InstrumentBar * instrumentBar, IButtonMap * buttonMap) {
+						 InstrumentBar * instrumentBar, IButtonMap * buttonMap,
+						 unsigned char currentInstrumentIndex) {
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
+	currentInstrumentIndex_ = currentInstrumentIndex;
 	panButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_ = new RadioButtons(hw_, buttonMap_->getInstrumentButtonArray(), 6);
 	updateConfiguration();
