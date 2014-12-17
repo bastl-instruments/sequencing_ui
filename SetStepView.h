@@ -29,6 +29,7 @@ public:
 	void updateConfiguration();
 	void updateVelocity();
 	unsigned char getSelectedIndstrumentIndex();
+	void setPlaying(bool isPlaying);
 private:
 	ILEDsAndButtonsHW * hw_;
 	IStepMemory * memory_;
@@ -53,8 +54,13 @@ private:
 
 	unsigned char instrumentCount_;
 	bool useVelocities_;
+	bool isPlaying_;
 
 };
+
+inline void SetStepView::setPlaying(bool isPlaying) {
+	isPlaying_ = isPlaying;
+}
 
 inline unsigned char SetStepView::getSelectedIndstrumentIndex() {
 	return currentInstrumentIndex_;

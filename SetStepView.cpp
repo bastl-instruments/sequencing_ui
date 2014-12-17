@@ -25,7 +25,8 @@ SetStepView::SetStepView() : hw_(0),
 								 drumStepView_(0),
 								 inSubStepMode_(false),
 								 instrumentCount_(10),
-								 useVelocities_(false){
+								 useVelocities_(false),
+								 isPlaying_(true){
 }
 
 SetStepView::~SetStepView() {
@@ -189,7 +190,7 @@ void SetStepView::update() {
 	}
 
 	unsigned char nextStep = player_->getCurrentInstrumentStep(currentInstrumentIndex_);
-	if (nextStep / 16 == currentPanIndex_) {
+	if (nextStep / 16 == currentPanIndex_ && isPlaying_) {
 		drumStepView_->setHighlightedButton(nextStep % 16);
 	} else {
 		drumStepView_->setHighlightedButton(-1);
