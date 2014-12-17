@@ -43,6 +43,8 @@ private:
 
 	void updateActives();
 	void updateConfiguration();
+	ILEDHW::LedState getLEDStateFromActiveMultiStatus(IStepMemory::ActiveMultiStatus status);
+
 };
 
 inline unsigned char SetActiveView::getSelectedInstrumentIndex() {
