@@ -94,3 +94,5 @@ void SettingsAndFunctionsView::update() {
 	}*/
 }
 
+
+

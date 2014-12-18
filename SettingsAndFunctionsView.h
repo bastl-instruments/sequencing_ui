@@ -25,18 +25,17 @@ public:
 	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settings, InstrumentBar * instrumentBar,
 			  IButtonMap * buttonMap);
 	void update();
-	void updatePan(bool readHWStatus = true);
 private:
 	ILEDsAndButtonsHW * hw_;
 	PlayerSettings * settings_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 
-	RadioButtons * panButtons_;
+	RadioButtons * quantizationButtons_;
 	Switches instrumentButtons_;
 
 	unsigned char currentInstrumentEventTypes_;
-
+	void reflectQuantizationSettings();
 };
 
 #endif /* SETTINGSANDFUNCTIONSVIEW_H_ */
