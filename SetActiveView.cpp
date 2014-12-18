@@ -41,12 +41,25 @@ void SetActiveView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * 
 }
 
 void SetActiveView::updateConfiguration() {
-	for (unsigned char i = 0; i < 4; i++) {
-		hw_->setLED(buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
-	}
 
 	unsigned char instrument = 0;
 	bool instrumentSelected = instrumentButtons_->getSelectedButton(instrument);
+
+	bool anyActive[4];
+	if (instrumentSelected) {
+		memory_->getActiveWindowBitArray(instrument, anyActive);
+	} else {
+		memory_->getAllInstrumentsActiveWindowBitArray(anyActive);
+	}
+
+	for (unsigned char i = 0; i < 4; i++) {
+		if (i == currentPanIndex_) {
+			hw_->setLED(buttonMap_->getSubStepButtonIndex(i), ILEDHW::ON);
+		} else {
+			hw_->setLED(buttonMap_->getSubStepButtonIndex(i), anyActive[i] ? ILEDHW::DULLON : ILEDHW::OFF);
+		}
+	}
+
 	for (unsigned char i = 0; i < 6; i++) {
 		instrumentBar_->setInstrumentSelected(i, ((i == instrument) || !instrumentSelected));
 	}
@@ -127,13 +140,11 @@ void SetActiveView::update() {
 							DrumStep step = memory_->getDrumStep(instrument, stepIndex);
 							step.setActive(newState);
 							memory_->setDrumStep(instrument, stepIndex, step);
-							if (stepIndex / 16 == currentPanIndex_) {
-								hw_->setLED(buttonMap_->getStepButtonIndex(stepIndex % 16), newState ? ILEDHW::ON : ILEDHW::OFF);
-							}
 						}
 					}
 					player_->changeActivesForCurrentStep(instrument, pressedStep + 1);
 				}
+				updateConfiguration();
 			}
 		}
 	}
