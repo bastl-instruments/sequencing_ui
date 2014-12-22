@@ -132,6 +132,15 @@ void SetActiveView::update() {
 					memory_->makeAllInstrumentsActiveUpTo(stepTo);
 					player_->changeActivesForCurrentStepInAllInstrunents(stepTo + 1);
 				}
+				for (unsigned char instrument = 0; instrument < 6; instrument++) {
+					if (instrument == currentInstrumentIndex_ || !isInstrumentSelected) {
+						if (memory_->isInDefaultState(instrument)) {
+							for (unsigned char panTo = 1; panTo < (pan + 1); panTo++) {
+								memory_->copyPan(instrument, 0, panTo);
+							}
+						}
+					}
+				}
 				updateConfiguration();
 				break;
 			}
