@@ -9,7 +9,7 @@
 #include <BitArrayOperations.h>
 
 SetActiveView::SetActiveView() : hw_(0),
-								 memory_(0),
+ 								 memory_(0),
 								 player_(0),
 								 instrumentBar_(0),
 								 buttonMap_(0),
@@ -25,9 +25,9 @@ SetActiveView::~SetActiveView() {
 	delete instrumentButtons_;
 }
 
-void SetActiveView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player,
-						 InstrumentBar * instrumentBar, IButtonMap * buttonMap,
-						 unsigned char currentInstrumentIndex) {
+void SetActiveView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
+						 IButtonMap * buttonMap, unsigned char currentInstrumentIndex) {
+
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
@@ -37,6 +37,7 @@ void SetActiveView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * 
 	panButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_ = new RadioButtons(hw_, buttonMap_->getInstrumentButtonArray(), 6);
 	instrumentButtons_->setSelectedButton(currentInstrumentIndex);
+	stepButtons_.init(hw_, buttonMap_->getStepButtonArray(), 16);
 	updateConfiguration();
 }
 
@@ -85,12 +86,15 @@ void SetActiveView::updateActives() {
 		for (unsigned char i = 0; i < 16; i++) {
 			bool stepActive = GETBIT(data[i / 8], i % 8);
 			hw_->setLED(buttonMap_->getStepButtonIndex(i), stepActive ? ILEDHW::ON : ILEDHW::OFF);
+			stepButtons_.setStatus(i, stepActive);
 		}
 	} else {
 		IStepMemory::ActiveMultiStatus statuses[16];
 		memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 2, statuses);
 		for (unsigned char i = 0; i < 16; i++) {
-			hw_->setLED(buttonMap_->getStepButtonIndex(i), getLEDStateFromActiveMultiStatus(statuses[i]));
+			ILEDHW::LedState state = getLEDStateFromActiveMultiStatus(statuses[i]);
+			hw_->setLED(buttonMap_->getStepButtonIndex(i), state);
+			stepButtons_.setStatus(i, state == ILEDHW::ON);
 		}
 	}
 }
@@ -102,6 +106,7 @@ void SetActiveView::update() {
 
 	panButtons_->update();
 	instrumentButtons_->update();
+	stepButtons_.update();
 
 	bool isInstrumentSelected = instrumentButtons_->getSelectedButton(newInstrument);
 	if ((isInstrumentSelected != wasInstrumentSelected) ||
@@ -112,40 +117,65 @@ void SetActiveView::update() {
 		updateConfiguration();
 		return;
 	}
-	unsigned char newPan = 0;
-	if (panButtons_->getSelectedButton(newPan) && currentPanIndex_ != newPan) {
-		currentPanIndex_ = newPan;
-		updateConfiguration();
-		return;
-	}
-	for (unsigned char i = 0; i < 16; i++) {
-		bool lastState = GETBIT(currentStatuses_, i);
-		bool currentState = hw_->getButtonState(buttonMap_->getStepButtonIndex(i));
-		bool shift = false;
-		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
-		if (lastState != currentState) {
-			//Update
-			currentState ? SETBITTRUE(currentStatuses_, i) : SETBITFALSE(currentStatuses_, i);
-			if (shift) {
-				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, pressedStep);
-				step.setActive(!step.isActive());
-				memory_->setDrumStep(currentInstrumentIndex_, pressedStep, step);
-				hw_->setLED(buttonMap_->getStepButtonIndex(i), step.isActive() ? ILEDHW::ON : ILEDHW::OFF);
-			} else if (currentState) {
-				for (unsigned char instrument = 0; instrument < 6; instrument++) {
-					unsigned char selectedInstrument;
-					if (!instrumentButtons_->getSelectedButton(selectedInstrument) || selectedInstrument == instrument) {
-						for (int stepIndex = 0; stepIndex < 64; stepIndex++) {
-							bool newState = stepIndex <= pressedStep;
-							DrumStep step = memory_->getDrumStep(instrument, stepIndex);
-							step.setActive(newState);
-							memory_->setDrumStep(instrument, stepIndex, step);
-						}
-					}
-					player_->changeActivesForCurrentStep(instrument, pressedStep + 1);
+	bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(1)) == IButtonHW::DOWN;
+	if (shift) {
+
+		//We take the highest currently pressed pan
+		//to increase number of active steps up to that pan
+		for (unsigned char pan = 0; pan < 4; pan++) {
+			if (hw_->getButtonState(buttonMap_->getSubStepButtonIndex(pan)) == IButtonHW::DOWN) {
+				unsigned char stepTo = ((pan + 1) * 16) - 1;
+				if (isInstrumentSelected) {
+					memory_->makeActiveUpTo(currentInstrumentIndex_, stepTo);
+					player_->changeActivesForCurrentStep(currentInstrumentIndex_, stepTo + 1);
+				} else {
+					memory_->makeAllInstrumentsActiveUpTo(stepTo);
+					player_->changeActivesForCurrentStepInAllInstrunents(stepTo + 1);
 				}
 				updateConfiguration();
+				break;
 			}
+		}
+		//Change back selected pan since in shift mode changes are not allowed
+		panButtons_->setSelectedButton(currentPanIndex_);
+	} else {
+		unsigned char newPan = 0;
+		if (panButtons_->getSelectedButton(newPan) && currentPanIndex_ != newPan) {
+			currentPanIndex_ = newPan;
+			updateConfiguration();
+			return;
+		}
+	}
+	for (unsigned char i = 0; i < 16; i++) {
+
+		// Check whether the status of the step button has been changed
+		bool lastState = GETBIT(currentStatuses_, i);
+		bool newState = hw_->getButtonState(buttonMap_->getStepButtonIndex(i));
+		bool stateChanged =  newState != lastState;
+		SETBIT(currentStatuses_, i, newState);
+
+		bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(1)) == IButtonHW::DOWN;
+		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
+		if (stateChanged) {
+			//Update
+			if (shift) {
+				for (unsigned char instrument = 0; instrument < 6; instrument++) {
+					if (instrument == currentInstrumentIndex_ || !isInstrumentSelected) {
+						DrumStep step = memory_->getDrumStep(instrument, pressedStep);
+						step.setActive(stepButtons_.getStatus(i));
+						memory_->setDrumStep(instrument, pressedStep, step);
+					}
+				}
+			} else {
+				if (isInstrumentSelected) {
+					memory_->makeActiveUpTo(currentInstrumentIndex_, pressedStep);
+					player_->changeActivesForCurrentStep(currentInstrumentIndex_, pressedStep + 1);
+				} else {
+					memory_->makeAllInstrumentsActiveUpTo(pressedStep);
+					player_->changeActivesForCurrentStepInAllInstrunents(pressedStep + 1);
+				}
+			}
+			updateConfiguration();
 		}
 	}
 }

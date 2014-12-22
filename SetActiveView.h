@@ -40,6 +40,7 @@ private:
 
 	RadioButtons * panButtons_;
 	RadioButtons * instrumentButtons_;
+	Switches stepButtons_;
 
 	void updateActives();
 	void updateConfiguration();
