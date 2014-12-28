@@ -23,11 +23,11 @@ public:
 	SetStepView();
 	~SetStepView();
 	void init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument, bool useVelocities);
+			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/);
 	void update();
 	void updateMutes();
 	void updateConfiguration();
-	void updateVelocity();
+	//void updateVelocity();
 	unsigned char getSelectedIndstrumentIndex();
 	void setPlaying(bool isPlaying);
 private:
@@ -46,14 +46,14 @@ private:
 
 	RadioButtons * panButtons_;
 	RadioButtons * instrumentButtons_;
-	RadioButtons * velocityRadio_;
+	//RadioButtons * velocityRadio_;
 	Switches subStepSwitches_;
 	DrumStepsView * drumStepView_;
 
 	bool inSubStepMode_;
 
 	unsigned char instrumentCount_;
-	bool useVelocities_;
+	//bool useVelocities_;
 	bool isPlaying_;
 
 };

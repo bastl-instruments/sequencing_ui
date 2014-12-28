@@ -21,25 +21,25 @@ SetStepView::SetStepView() : hw_(0),
 								 currentStatuses_(0),
 								 panButtons_(0),
 								 instrumentButtons_(0),
-								 velocityRadio_(0),
+								 //velocityRadio_(0),
 								 drumStepView_(0),
 								 inSubStepMode_(false),
 								 instrumentCount_(10),
-								 useVelocities_(false),
+								 //useVelocities_(false),
 								 isPlaying_(true){
 }
 
 SetStepView::~SetStepView() {
 	delete panButtons_;
 	delete instrumentButtons_;
-	if (useVelocities_) {
-		delete velocityRadio_;
-	}
+	//if (useVelocities_) {
+	//	delete velocityRadio_;
+	//}
 	delete drumStepView_;
 }
 
 void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument, bool useVelocities) {
+		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/) {
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
@@ -47,14 +47,14 @@ void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * pl
 	buttonMap_ = buttonMap;
 	currentPattern_ = pattern;
 	instrumentCount_ = instrumentCount;
-	useVelocities_ = useVelocities;
+	//useVelocities_ = useVelocities;
 	currentInstrumentIndex_ = initialInstrument;
 	panButtons_ = new RadioButtons(hw, buttonMap_->getSubStepButtonArray(), 4);
 	subStepSwitches_.init(hw, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_ = new RadioButtons(hw, buttonMap_->getInstrumentButtonArray(), instrumentCount_);
-	if (useVelocities_) {
-		velocityRadio_ = new RadioButtons(hw_, buttonMap_->getVelocityButtonArray(), 2);
-	}
+	//if (useVelocities_) {
+	//	velocityRadio_ = new RadioButtons(hw_, buttonMap_->getVelocityButtonArray(), 2);
+	//}
 	drumStepView_ = new DrumStepsView();
 	drumStepView_->init(hw_, buttonMap_);
 	updateConfiguration();
@@ -77,7 +77,7 @@ void SetStepView::updateMutes() {
 	drumStepView_->setStatus(currentStatuses_);
 }
 
-void SetStepView::updateVelocity() {
+/*void SetStepView::updateVelocity() {
 	if (useVelocities_) {
 		velocityRadio_->update();
 		unsigned char newVelocity = 0;
@@ -97,14 +97,14 @@ void SetStepView::updateVelocity() {
 			currentVelocity_ = DrumStep::NORMAL;
 		}
 	}
-}
+}*/
 
 void SetStepView::update() {
 
 	instrumentButtons_->update();
 	drumStepView_->update();
 
-	updateVelocity();
+	//updateVelocity();
 
 	unsigned char newInstrument = 0;
 	if (instrumentButtons_->getSelectedButton(newInstrument) && currentInstrumentIndex_ != newInstrument) {
