@@ -22,9 +22,9 @@ public:
 private:
 	ILEDHW * hw_;
 	IButtonMap * buttonMap_;
+	unsigned char instrumentCount_;
 	int currentSelectedStatuses_;
 	int currentPlayingStatuses_;
-	unsigned char instrumentCount_;
 	bool isActive_;
 };
 
