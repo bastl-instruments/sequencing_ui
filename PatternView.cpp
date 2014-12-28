@@ -30,31 +30,16 @@ void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepM
 	currentPan_ = currentPattern_ / 16;
 
 	instrumentSwitches_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
-	patternSelectRadioButtons_ = new RadioButtons(hw_, buttonMap_->getStepButtonArray(), 16);
+	patternSelectRadioButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 16);
 	patternSelectRadioButtons_->setSelectedButton(currentPattern_ % 16);
-	panSelectRadioButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	panSelectRadioButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	panSelectRadioButtons_->setSelectedButton(currentPan_);
-
-	updateLEDsForPan();
 
 	//Present instrument settings
 	for (unsigned char i = 0; i < 6; i++) {
 		bool instrumentStatus = settings_->isInstrumentOn(Step::DRUM, i);
 		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
 		instrumentSwitches_.setStatus(i, instrumentStatus);
-	}
-}
-
-void PatternView::updateLEDsForPan() {
-
-	for (unsigned char panIndex = 0; panIndex < 4; panIndex++) {
-		hw_->setLED(buttonMap_->getSubStepButtonIndex(panIndex), currentPan_ == panIndex ? ILEDHW::ON : ILEDHW::OFF);
-	}
-
-	unsigned char selectedButtonIndex;
-	bool itemSelected = patternSelectRadioButtons_->getSelectedButton(selectedButtonIndex);
-	for (unsigned char i = 0; i < 16; i++) {
-		hw_->setLED(buttonMap_->getStepButtonIndex(i), (itemSelected && (selectedButtonIndex == i)) ? ILEDHW::ON : ILEDHW::OFF);
 	}
 }
 
@@ -69,7 +54,8 @@ void PatternView::updatePan() {
 		if (currentPattern_ / 16 == currentPan_) {
 			patternSelectRadioButtons_->setSelectedButton(currentPattern_ % 16);
 		}
-		updateLEDsForPan();
+	} else {
+		panSelectRadioButtons_->setSelectedButton(currentPan_);
 	}
 }
 
@@ -84,8 +70,6 @@ void PatternView::update() {
 	bool somethingSelected = patternSelectRadioButtons_->getSelectedButton(newPattern);
 	newPattern += (currentPan_ * 16);
 	if (somethingSelected && (newPattern != currentPattern_)) {
-		hw_->setLED(buttonMap_->getStepButtonIndex(currentPattern_ % 16), ILEDHW::OFF);
-		hw_->setLED(buttonMap_->getStepButtonIndex(newPattern % 16), ILEDHW::ON);
 		settings_->setCurrentPattern(newPattern);
 		currentPattern_ = newPattern;
 		return;

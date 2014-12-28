@@ -10,7 +10,7 @@
 
 #include <IView.h>
 #include <IStepMemory.h>
-#include <RadioButtons.h>
+#include <LEDRadioButtons.h>
 #include <Switches.h>
 #include <PlayerSettings.h>
 #include "InstrumentBar.h"
@@ -33,13 +33,12 @@ private:
 
 	//Controls
 	Switches instrumentSwitches_;
-	RadioButtons * patternSelectRadioButtons_;
-	RadioButtons * panSelectRadioButtons_;
+	LEDRadioButtons * patternSelectRadioButtons_;
+	LEDRadioButtons * panSelectRadioButtons_;
 	unsigned char currentPattern_;
 	unsigned char currentPan_;
 
 	void updatePan();
-	void updateLEDsForPan();
 };
 
 #endif /* PATTERNVIEW_H_ */
