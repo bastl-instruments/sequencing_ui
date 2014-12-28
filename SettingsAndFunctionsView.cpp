@@ -44,11 +44,13 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 settings_(0),
 								 instrumentBar_(0),
 								 buttonMap_(0),
-								 quantizationButtons_(0) {
+								 quantizationButtons_(0),
+								 multiplierButtons_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
 	delete quantizationButtons_;
+	delete multiplierButtons_;
 	instrumentBar_->setActive(true);
 }
 
@@ -60,14 +62,12 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 	instrumentBar_ = instrumentBar;
 	instrumentBar_->setActive(false);
 	buttonMap_ = buttonMap;
-	quantizationButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 3);
+	quantizationButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	multiplierButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 4);
 	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
-	char buttonIndex = ((char)(settings_->getRecordQuantizationType())) - 1;
-	if (buttonIndex != -1) {
-		quantizationButtons_->setSelectedButton(buttonIndex);
-	}
 
-	reflectQuantizationSettings();
+	quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
+	multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
 
 	for (unsigned char i = 0; i < 6; i++) {
 		bool isOn = settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
@@ -77,27 +77,24 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 
 }
 
-void SettingsAndFunctionsView::reflectQuantizationSettings() {
-	unsigned char index = (char)(settings_->getRecordQuantizationType());
-	for (unsigned char buttonIndex = 0; buttonIndex < 3; buttonIndex++) {
-		hw_->setLED(buttonMap_->getSubStepButtonIndex(buttonIndex),
-				buttonIndex < index ? ILEDHW::ON : ILEDHW::OFF);
-	}
-}
-
-
 void SettingsAndFunctionsView::update() {
 
 	instrumentButtons_.update();
 	quantizationButtons_->update();
+	multiplierButtons_->update();
 
 	unsigned char quantizationIndex = 0;
-	PlayerSettings::QuantizationType newType = quantizationButtons_->getSelectedButton(quantizationIndex) ?
-			(PlayerSettings::QuantizationType)(quantizationIndex + 1) : PlayerSettings::_1_64;
+	if (quantizationButtons_->getSelectedButton(quantizationIndex)) {
+		settings_->setRecordQuantizationType((PlayerSettings::QuantizationType)(quantizationIndex));
+	} else {
+		quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
+	}
 
-	if (newType != settings_->getRecordQuantizationType()) {
-		settings_->setRecordQuantizationType(newType);
-		reflectQuantizationSettings();
+	unsigned char multiplierIndex = 0;
+	if (multiplierButtons_->getSelectedButton(multiplierIndex)) {
+		settings_->setMultiplication((PlayerSettings::MultiplicationType)(multiplierIndex));
+	} else {
+		multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
 	}
 
 	// Update playing instruments settings

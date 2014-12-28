@@ -12,7 +12,7 @@
 #include <IView.h>
 #include <ILEDsAndButtonsHW.h>
 #include <IStepMemory.h>
-#include <RadioButtons.h>
+#include <LEDRadioButtons.h>
 #include <Switches.h>
 #include <Player.h>
 #include "InstrumentBar.h"
@@ -31,7 +31,9 @@ private:
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 
-	RadioButtons * quantizationButtons_;
+	LEDRadioButtons * quantizationButtons_;
+	LEDRadioButtons * multiplierButtons_;
+
 	Switches instrumentButtons_;
 
 	unsigned char currentInstrumentEventTypes_;
