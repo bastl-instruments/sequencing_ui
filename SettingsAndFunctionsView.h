@@ -44,6 +44,8 @@ private:
 	unsigned char selectedInstrument_;
 
 	Player * player_;
+
+	Switches playModeSwitch_;
 	void reflectQuantizationSettings();
 };
 

@@ -49,7 +49,7 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 buttonStatuses_(0),
 								 memory_(0),
 								 selectedInstrument_(0),
-								 player_(0){
+								 player_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
@@ -74,7 +74,10 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 	quantizationButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	multiplierButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 4);
 	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
-
+	playModeSwitch_.init(hw_, buttonMap_->getMainMenuButtonArray() + 4, 1);
+	bool isMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
+	playModeSwitch_.setStatus(0, isMaster);
+	hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), isMaster ? ILEDHW::ON : ILEDHW::OFF);
 	quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
 	multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
 
@@ -91,6 +94,14 @@ void SettingsAndFunctionsView::update() {
 	instrumentButtons_.update();
 	quantizationButtons_->update();
 	multiplierButtons_->update();
+	playModeSwitch_.update();
+
+	//update player mode
+	bool settingsWasMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
+	if (playModeSwitch_.getStatus(0) != settingsWasMaster) {
+		settings_->setPlayerMode(settingsWasMaster ? PlayerSettings::SLAVE : PlayerSettings::MASTER);
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), settingsWasMaster ? ILEDHW::OFF : ILEDHW::ON);
+	}
 
 	//Quantization settings
 	unsigned char quantizationIndex = 0;
