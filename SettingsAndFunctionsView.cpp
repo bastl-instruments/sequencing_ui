@@ -17,26 +17,26 @@
 
 //the numbers represent step number
 
-#define CLOCK_INPUT_MULTIPLIER_4 1 // being set in the setup at the moment
-#define CLOCK_INPUT_MULTIPLIER_8 2
-#define CLOCK_INPUT_MULTIPLIER_16 3
-#define CLOCK_INPUT_MULTIPLIER_32 4
+#define CLOCK_INPUT_MULTIPLIER_4 0 // being set in the setup at the moment
+#define CLOCK_INPUT_MULTIPLIER_8 1
+#define CLOCK_INPUT_MULTIPLIER_16 2
+#define CLOCK_INPUT_MULTIPLIER_32 3
 
 //here instead of 5 tempo jumps might come something else when we have idea what else it could be
-#define TEMPO_DOWN_5 5 	//jump by 5 BPM
-#define TEMPO_DOWN 6 	//jump by 1 BPM
-#define TEMPO_UP 7 		//jump by 1 BPM
-#define TEMPO_UP_5 8 	//jump by 5 BPM
+#define TEMPO_DOWN_5 4 	//jump by 5 BPM
+#define TEMPO_DOWN 5 	//jump by 1 BPM
+#define TEMPO_UP 6 		//jump by 1 BPM
+#define TEMPO_UP_5 7 	//jump by 5 BPM
 
-#define COPY 9				//remembers current pattern, instrument and pan
-#define PASTE 10			// checks last action (selection of pattern, instrument or pan) and copies to the current one
-#define SAVE 11				// saves to card and remembers  adresses of patterns
-#define DISCARD_CHANGES 12	// not ready yet - but changes adresses of patterns
+#define COPY 8				//remembers current pattern, instrument and pan
+#define PASTE 9			// checks last action (selection of pattern, instrument or pan) and copies to the current one
+#define SAVE 10				// saves to card and remembers  adresses of patterns
+#define DISCARD_CHANGES 11	// not ready yet - but changes adresses of patterns
 
-#define CLEAR_PATTERN 13 //put everything to default including actives
-#define CLEAR_INSTRUMENT 14 // delete just steps
-#define CLEAR_ACTIVES_FOR_INSTRUMENT 15 // delete just steps
-#define CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS 16//all actives to default state
+#define CLEAR_PATTERN 12 //put everything to default including actives
+#define CLEAR_INSTRUMENT 13 // delete just steps
+#define CLEAR_ACTIVES_FOR_INSTRUMENT 14 // delete just steps
+#define CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS 15//all actives to default state
 
 
 
@@ -45,7 +45,8 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 instrumentBar_(0),
 								 buttonMap_(0),
 								 quantizationButtons_(0),
-								 multiplierButtons_(0) {
+								 multiplierButtons_(0),
+								 buttonStatuses_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
@@ -83,6 +84,7 @@ void SettingsAndFunctionsView::update() {
 	quantizationButtons_->update();
 	multiplierButtons_->update();
 
+	//Quantization settings
 	unsigned char quantizationIndex = 0;
 	if (quantizationButtons_->getSelectedButton(quantizationIndex)) {
 		settings_->setRecordQuantizationType((PlayerSettings::QuantizationType)(quantizationIndex));
@@ -90,6 +92,7 @@ void SettingsAndFunctionsView::update() {
 		quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
 	}
 
+	//Multiplication settings
 	unsigned char multiplierIndex = 0;
 	if (multiplierButtons_->getSelectedButton(multiplierIndex)) {
 		settings_->setMultiplication((PlayerSettings::MultiplicationType)(multiplierIndex));
@@ -106,6 +109,32 @@ void SettingsAndFunctionsView::update() {
 			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), newType == PlayerSettings::GATE ? ILEDHW::ON : ILEDHW::OFF);
 			settings_->setDrumInstrumentEventType(i, newType);
 		}
+	}
+
+	//Other functions
+	for (unsigned char button = 4; button < 16; button++) {
+		bool buttonWasDown = GETBIT(buttonStatuses_, button);
+		bool buttonIsDown = hw_->getButtonState(buttonMap_->getStepButtonIndex(button)) == IButtonHW::DOWN;
+		if (!buttonWasDown && buttonIsDown)  {
+			unsigned int currentBPM = settings_->getBPM();
+			switch (button) {
+			case TEMPO_DOWN_5: 	//jump by 5 BPM
+				settings_->setBPM(currentBPM - 5);
+				break;
+			case TEMPO_DOWN: 	//jump by 1 BPM
+				settings_->setBPM(currentBPM - 1);
+				break;
+			case TEMPO_UP: 		//jump by 1 BPM
+				settings_->setBPM(currentBPM + 1);
+				break;
+			case TEMPO_UP_5: 	//jump by 5 BPM
+				settings_->setBPM(currentBPM + 5);
+				break;
+
+			}
+		}
+		SETBIT(buttonStatuses_, button, buttonIsDown);
+
 	}
 }
 

@@ -37,6 +37,7 @@ private:
 	Switches instrumentButtons_;
 
 	unsigned char currentInstrumentEventTypes_;
+	unsigned int buttonStatuses_;
 	void reflectQuantizationSettings();
 };
 
