@@ -23,7 +23,8 @@ public:
 	SettingsAndFunctionsView();
 	~SettingsAndFunctionsView();
 	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settings, InstrumentBar * instrumentBar,
-			  IButtonMap * buttonMap);
+			  IButtonMap * buttonMap, IStepMemory * memory, unsigned char selectedInstrument,
+			  Player * player);
 	void update();
 private:
 	ILEDsAndButtonsHW * hw_;
@@ -38,6 +39,11 @@ private:
 
 	unsigned char currentInstrumentEventTypes_;
 	unsigned int buttonStatuses_;
+
+	IStepMemory * memory_;
+	unsigned char selectedInstrument_;
+
+	Player * player_;
 	void reflectQuantizationSettings();
 };
 
