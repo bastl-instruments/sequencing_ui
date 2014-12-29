@@ -21,6 +21,7 @@ SetStepView::SetStepView() : hw_(0),
 								 currentStatuses_(0),
 								 panButtons_(0),
 								 instrumentButtons_(0),
+								 settings_(0),
 								 //velocityRadio_(0),
 								 drumStepView_(0),
 								 inSubStepMode_(false),
@@ -39,12 +40,14 @@ SetStepView::~SetStepView() {
 }
 
 void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/) {
+		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/,
+		PlayerSettings * settings) {
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
+	settings_ = settings;
 	currentPattern_ = pattern;
 	instrumentCount_ = instrumentCount;
 	//useVelocities_ = useVelocities;
@@ -129,10 +132,14 @@ void SetStepView::update() {
 				subStepSwitches_.setStatus(i, substepHasNote);
 			}
 			if (!anyOn) {
-				step.setSubStep(0, currentVelocity_);
+				for (unsigned char subStep = 0; subStep < 4; subStep++) {
+					if (subStep == 0 || settings_->getDrumInstrumentEventType(currentInstrumentIndex_) == PlayerSettings::GATE) {
+						step.setSubStep(subStep, currentVelocity_);
+						hw_->setLED(buttonMap_->getSubStepButtonIndex(subStep), ILEDHW::ON);
+						subStepSwitches_.setStatus(subStep, true);
+					}
+				}
 				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
-				hw_->setLED(buttonMap_->getSubStepButtonIndex(0), ILEDHW::ON);
-				subStepSwitches_.setStatus(0, true);
 			}
 		} else {
 			inSubStepMode_ = false;

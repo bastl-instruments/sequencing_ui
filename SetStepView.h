@@ -14,6 +14,7 @@
 #include <RadioButtons.h>
 #include <Switches.h>
 #include <Player.h>
+#include <PlayerSettings.h>
 #include "DrumStepsView.h"
 #include "InstrumentBar.h"
 #include "IButtonMap.h"
@@ -23,7 +24,8 @@ public:
 	SetStepView();
 	~SetStepView();
 	void init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/);
+			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument /*, bool useVelocities*/,
+			PlayerSettings * settings);
 	void update();
 	void updateMutes();
 	void updateConfiguration();
@@ -36,6 +38,7 @@ private:
 	Player * player_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
+	PlayerSettings * settings_;
 
 	unsigned char currentPattern_;
 	unsigned char currentPanIndex_;
