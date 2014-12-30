@@ -51,8 +51,11 @@ void PlayRecordView::update() {
 		bool currentStatus = (currentStatus_ & (1 << i)) != 0;
 		bool newStatus = hw_->getButtonState(buttonMap_->getInstrumentButtonIndex(i)) == IButtonHW::DOWN;
 		if (!currentStatus && newStatus) {
-			recorder_->recordNote(i);
+			recorder_->startRecordNote(i);
 			turnOffStep_ =  false;
+		}
+		if (currentStatus && !newStatus) {
+			recorder_->stopRecordNote(i);
 		}
 		if (newStatus) {
 			newStatuses = newStatuses | 1 << i;
