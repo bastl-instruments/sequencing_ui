@@ -90,7 +90,7 @@ void SetActiveView::updateActives() {
 		}
 	} else {
 		IStepMemory::ActiveMultiStatus statuses[16];
-		memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 2, statuses);
+		memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 16, statuses);
 		for (unsigned char i = 0; i < 16; i++) {
 			ILEDHW::LedState state = getLEDStateFromActiveMultiStatus(statuses[i]);
 			hw_->setLED(buttonMap_->getStepButtonIndex(i), state);
