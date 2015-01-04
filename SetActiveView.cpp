@@ -89,11 +89,21 @@ void SetActiveView::updateActives() {
 
 	for (unsigned char i = 0; i < 16; i++) {
 		ILEDHW::LedState state = BitArrayOperations::getBit(data[i / 8], i % 8) ? ILEDHW::ON : ILEDHW::OFF;
-		if (instrumentButtons_->getSelectedButton(instrument)) {
+		if (!instrumentButtons_->getSelectedButton(instrument)) {
 			state = getLEDStateFromActiveMultiStatus(statuses[i]);
-			hw_->setLED(buttonMap_->getStepButtonIndex(i), state);
-			stepButtons_.setStatus(i, state == ILEDHW::ON);
 		}
+		hw_->setLED(buttonMap_->getStepButtonIndex(i), state);
+		stepButtons_.setStatus(i, state == ILEDHW::ON);
+	}
+}
+
+void SetActiveView::setActiveUpTo(unsigned char stepTo, bool instrumentSelected) {
+	if (instrumentSelected) {
+		memory_->makeActiveUpTo(currentInstrumentIndex_, stepTo);
+		player_->changeActivesForCurrentStep(currentInstrumentIndex_, stepTo + 1);
+	} else {
+		memory_->makeAllInstrumentsActiveUpTo(stepTo);
+		player_->changeActivesForCurrentStepInAllInstrunents(stepTo + 1);
 	}
 }
 
@@ -122,14 +132,7 @@ void SetActiveView::update() {
 		//to increase number of active steps up to that pan
 		for (unsigned char pan = 0; pan < 4; pan++) {
 			if (hw_->getButtonState(buttonMap_->getSubStepButtonIndex(pan)) == IButtonHW::DOWN) {
-				unsigned char stepTo = ((pan + 1) * 16) - 1;
-				if (isInstrumentSelected) {
-					memory_->makeActiveUpTo(currentInstrumentIndex_, stepTo);
-					player_->changeActivesForCurrentStep(currentInstrumentIndex_, stepTo + 1);
-				} else {
-					memory_->makeAllInstrumentsActiveUpTo(stepTo);
-					player_->changeActivesForCurrentStepInAllInstrunents(stepTo + 1);
-				}
+				setActiveUpTo(((pan + 1) * 16) - 1, isInstrumentSelected);
 				for (unsigned char instrument = 0; instrument < 6; instrument++) {
 					if (instrument == currentInstrumentIndex_ || !isInstrumentSelected) {
 						if (memory_->isInDefaultState(instrument)) {
@@ -174,13 +177,7 @@ void SetActiveView::update() {
 					}
 				}
 			} else {
-				if (isInstrumentSelected) {
-					memory_->makeActiveUpTo(currentInstrumentIndex_, pressedStep);
-					player_->changeActivesForCurrentStep(currentInstrumentIndex_, pressedStep + 1);
-				} else {
-					memory_->makeAllInstrumentsActiveUpTo(pressedStep);
-					player_->changeActivesForCurrentStepInAllInstrunents(pressedStep + 1);
-				}
+				setActiveUpTo(pressedStep, isInstrumentSelected);
 			}
 			updateConfiguration();
 		}
