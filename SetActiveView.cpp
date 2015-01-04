@@ -80,19 +80,17 @@ ILEDHW::LedState SetActiveView::getLEDStateFromActiveMultiStatus(IStepMemory::Ac
 
 void SetActiveView::updateActives() {
 	unsigned char instrument;
-	if (instrumentButtons_->getSelectedButton(instrument)) {
-		unsigned char data[4] = {0, 0, 0, 0};
-		memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2,  data);
-		for (unsigned char i = 0; i < 16; i++) {
-			bool stepActive = GETBIT(data[i / 8], i % 8);
-			hw_->setLED(buttonMap_->getStepButtonIndex(i), stepActive ? ILEDHW::ON : ILEDHW::OFF);
-			stepButtons_.setStatus(i, stepActive);
-		}
-	} else {
-		IStepMemory::ActiveMultiStatus statuses[16];
-		memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 16, statuses);
-		for (unsigned char i = 0; i < 16; i++) {
-			ILEDHW::LedState state = getLEDStateFromActiveMultiStatus(statuses[i]);
+
+	unsigned char data[4] = {0, 0, 0, 0};
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2,  data);
+
+	IStepMemory::ActiveMultiStatus statuses[16];
+	memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 16, statuses);
+
+	for (unsigned char i = 0; i < 16; i++) {
+		ILEDHW::LedState state = BitArrayOperations::getBit(data[i / 8], i % 8) ? ILEDHW::ON : ILEDHW::OFF;
+		if (instrumentButtons_->getSelectedButton(instrument)) {
+			state = getLEDStateFromActiveMultiStatus(statuses[i]);
 			hw_->setLED(buttonMap_->getStepButtonIndex(i), state);
 			stepButtons_.setStatus(i, state == ILEDHW::ON);
 		}
