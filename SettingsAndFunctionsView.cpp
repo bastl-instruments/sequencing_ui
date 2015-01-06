@@ -23,15 +23,18 @@
 #define CLOCK_INPUT_MULTIPLIER_32 3
 
 //here instead of 5 tempo jumps might come something else when we have idea what else it could be
-#define TEMPO_DOWN_5 4 	// jump by 5 BPM
-#define TEMPO_DOWN 5 	// jump by 1 BPM
-#define TEMPO_UP 6 		// jump by 1 BPM
-#define TEMPO_UP_5 7 	// jump by 5 BPM
 
-#define COPY 8				// remembers current pattern, instrument and pan
-#define PASTE 9				// checks last action (selection of pattern, instrument or pan) and copies to the current one
-#define SAVE 10				// saves to card and remembers  adresses of patterns
-#define DISCARD_CHANGES 11	// not ready yet - but changes adresses of patterns
+#define TEMPO_UP_5 4 	// jump by 5 BPM
+#define COPY 5
+#define SAVE 6				// saves to card and remembers  adresses of patterns
+#define DISCARD_CHANGES 7
+
+#define TEMPO_DOWN_5 8	// jump by 5 BPM
+#define PASTE_INSTRUMENT 9
+#define PASTE_PAN 10
+#define PASTE_PATTERN 11
+
+
 
 #define CLEAR_STEPS_FOR_INSTRUMENT 12 			// put everything to default including actives
 #define CLEAR_STEPS_FOR_ALL_INSTRUMENTS 13 		// delete just steps
