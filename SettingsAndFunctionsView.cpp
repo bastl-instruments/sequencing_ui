@@ -143,12 +143,14 @@ void SettingsAndFunctionsView::update() {
 			case TEMPO_DOWN_5: 	//jump by 5 BPM
 				settings_->setBPM(currentBPM - 5);
 				break;
+				/*
 			case TEMPO_DOWN: 	//jump by 1 BPM
 				settings_->setBPM(currentBPM - 1);
 				break;
 			case TEMPO_UP: 		//jump by 1 BPM
 				settings_->setBPM(currentBPM + 1);
 				break;
+				*/
 			case TEMPO_UP_5: 	//jump by 5 BPM
 				settings_->setBPM(currentBPM + 5);
 				break;
