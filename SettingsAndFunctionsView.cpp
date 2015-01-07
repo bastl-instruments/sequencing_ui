@@ -23,6 +23,7 @@
 #define CLOCK_INPUT_MULTIPLIER_32 3
 
 //here instead of 5 tempo jumps might come something else when we have idea what else it could be
+
 #define UNDO 4
 #define COPY 5
 #define TAP_TEMPO 6
@@ -155,20 +156,20 @@ void SettingsAndFunctionsView::update() {
 					break;
 				case UNDO:
 					break;
-			case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
-				memory_->clearStepsForInstrument(selectedInstrument_);
-				break;
-			case CLEAR_STEPS_FOR_ALL_INSTRUMENTS: 	// delete just steps
-				memory_->clearStepsForAllInstruments();
-				break;
-			case CLEAR_ACTIVES_FOR_INSTRUMENT: 		// delete just steps
-				memory_->makeActiveUpTo(selectedInstrument_, 15);
-				player_->changeActivesForCurrentStep(selectedInstrument_, 16);
-				break;
-			case CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS:
-				memory_->makeAllInstrumentsActiveUpTo(15);
-				player_->changeActivesForCurrentStepInAllInstrunents(16);
-				break;
+				case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
+					memory_->clearStepsForInstrument(selectedInstrument_);
+					break;
+				case CLEAR_STEPS_FOR_ALL_INSTRUMENTS: 	// delete just steps
+					memory_->clearStepsForAllInstruments();
+					break;
+				case CLEAR_ACTIVES_FOR_INSTRUMENT: 		// delete just steps
+					memory_->makeActiveUpTo(selectedInstrument_, 15);
+					player_->changeActivesForCurrentStep(selectedInstrument_, 16);
+					break;
+				case CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS:
+					memory_->makeAllInstrumentsActiveUpTo(15);
+					player_->changeActivesForCurrentStepInAllInstrunents(16);
+					break;
 			}
 		}
 		SETBIT(buttonStatuses_, button, buttonIsDown);
