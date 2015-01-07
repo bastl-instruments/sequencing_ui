@@ -17,6 +17,7 @@
 #include <Player.h>
 #include "InstrumentBar.h"
 #include "IButtonMap.h"
+#include <ITapper.h>
 
 class SettingsAndFunctionsView : public IView {
 public:
@@ -24,7 +25,7 @@ public:
 	~SettingsAndFunctionsView();
 	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settings, InstrumentBar * instrumentBar,
 			  IButtonMap * buttonMap, IStepMemory * memory, unsigned char selectedInstrument,
-			  Player * player);
+			  Player * player, ITapper * tapper);
 	void update();
 private:
 	ILEDsAndButtonsHW * hw_;
@@ -44,6 +45,7 @@ private:
 	unsigned char selectedInstrument_;
 
 	Player * player_;
+	ITapper * tapper_;
 
 	Switches playModeSwitch_;
 	void reflectQuantizationSettings();

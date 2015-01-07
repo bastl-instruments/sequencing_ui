@@ -50,7 +50,8 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 buttonStatuses_(0),
 								 memory_(0),
 								 selectedInstrument_(0),
-								 player_(0) {
+								 player_(0),
+								 tapper_(0){
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
@@ -63,8 +64,9 @@ SettingsAndFunctionsView::~SettingsAndFunctionsView() {
 void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settings,
 						 	 	 	InstrumentBar * instrumentBar, IButtonMap * buttonMap,
 						 	 	 	IStepMemory * memory, unsigned char selectedInstrument,
-						 	 	 	Player * player) {
+						 	 	 	Player * player, ITapper * tapper) {
 	hw_ = hw;
+	tapper_ = tapper;
 	settings_ = settings;
 	instrumentBar_ = instrumentBar;
 	instrumentBar_->setActive(false);
@@ -145,6 +147,7 @@ void SettingsAndFunctionsView::update() {
 					settings_->setBPM(currentBPM + 1);
 					break;
 				case TAP_TEMPO:
+					tapper_->tap(hw_->getElapsedBastlCycles());
 					break;
 				case COPY:
 					break;
