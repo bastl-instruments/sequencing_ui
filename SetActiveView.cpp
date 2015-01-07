@@ -125,7 +125,7 @@ void SetActiveView::update() {
 		updateConfiguration();
 		return;
 	}
-	bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(0)) == IButtonHW::DOWN;
+	bool shift = hw_->getButtonState(buttonMap_->getFunctionButtonIndex()) == IButtonHW::DOWN;
 	if (shift) {
 
 		//We take the highest currently pressed pan

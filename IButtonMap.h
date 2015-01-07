@@ -21,6 +21,14 @@ public:
 	virtual unsigned char * getStepButtonArray() = 0;
 	virtual unsigned char * getSubStepButtonArray() = 0;
 	virtual unsigned char * getVelocityButtonArray() = 0;
+
+	virtual unsigned char getPlayButtonIndex() = 0;
+	virtual unsigned char getRecordButtonIndex() = 0;
+	virtual unsigned char getJumpButtonIndex() = 0;
+	virtual unsigned char getFunctionButtonIndex() = 0;
+	virtual unsigned char getPatternButtonIndex() = 0;
+	virtual unsigned char getActiveButtonIndex() = 0;
+
 };
 
 #endif /* IBUTTONMAP_H_ */
