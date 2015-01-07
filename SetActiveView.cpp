@@ -125,7 +125,7 @@ void SetActiveView::update() {
 		updateConfiguration();
 		return;
 	}
-	bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(1)) == IButtonHW::DOWN;
+	bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(3)) == IButtonHW::DOWN;
 	if (shift) {
 
 		//We take the highest currently pressed pan
@@ -133,15 +133,6 @@ void SetActiveView::update() {
 		for (unsigned char pan = 0; pan < 4; pan++) {
 			if (hw_->getButtonState(buttonMap_->getSubStepButtonIndex(pan)) == IButtonHW::DOWN) {
 				setActiveUpTo(((pan + 1) * 16) - 1, isInstrumentSelected);
-				for (unsigned char instrument = 0; instrument < 6; instrument++) {
-					if (instrument == currentInstrumentIndex_ || !isInstrumentSelected) {
-						if (memory_->isInDefaultState(instrument)) {
-							for (unsigned char panTo = 1; panTo < (pan + 1); panTo++) {
-								memory_->copyPan(instrument, 0, panTo);
-							}
-						}
-					}
-				}
 				updateConfiguration();
 				break;
 			}
@@ -164,7 +155,6 @@ void SetActiveView::update() {
 		bool stateChanged =  newState != lastState;
 		SETBIT(currentStatuses_, i, newState);
 
-		bool shift = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(1)) == IButtonHW::DOWN;
 		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
 		if (stateChanged) {
 			//Update
