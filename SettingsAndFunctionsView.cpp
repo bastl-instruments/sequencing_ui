@@ -23,20 +23,20 @@
 #define CLOCK_INPUT_MULTIPLIER_32 3
 
 //here instead of 5 tempo jumps might come something else when we have idea what else it could be
-#define TEMPO_DOWN_5 4 	// jump by 5 BPM
-#define TEMPO_DOWN 5 	// jump by 1 BPM
-#define TEMPO_UP 6 		// jump by 1 BPM
-#define TEMPO_UP_5 7 	// jump by 5 BPM
+#define UNDO 4
+#define COPY 5
+#define TAP_TEMPO 6
+#define TEMPO_UP 7
 
-#define COPY 8				// remembers current pattern, instrument and pan
-#define PASTE 9				// checks last action (selection of pattern, instrument or pan) and copies to the current one
-#define SAVE 10				// saves to card and remembers  adresses of patterns
-#define DISCARD_CHANGES 11	// not ready yet - but changes adresses of patterns
+#define PASTE_INSTRUMENT 8
+#define PASTE_BAR 9
+#define PASTE_PATTERN 10
+#define TEMPO_DOWN 11
 
-#define CLEAR_STEPS_FOR_INSTRUMENT 12 			// put everything to default including actives
-#define CLEAR_STEPS_FOR_ALL_INSTRUMENTS 13 		// delete just steps
-#define CLEAR_ACTIVES_FOR_INSTRUMENT 14 		// delete just steps
-#define CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS 15	// all actives to default state
+#define CLEAR_STEPS_FOR_INSTRUMENT 12
+#define CLEAR_STEPS_FOR_ALL_INSTRUMENTS 13
+#define CLEAR_ACTIVES_FOR_INSTRUMENT 14
+#define CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS 15
 
 
 
@@ -137,18 +137,24 @@ void SettingsAndFunctionsView::update() {
 		if (!buttonWasDown && buttonIsDown)  {
 			unsigned int currentBPM = settings_->getBPM();
 			switch (button) {
-			case TEMPO_DOWN_5: 	//jump by 5 BPM
-				settings_->setBPM(currentBPM - 5);
-				break;
-			case TEMPO_DOWN: 	//jump by 1 BPM
-				settings_->setBPM(currentBPM - 1);
-				break;
-			case TEMPO_UP: 		//jump by 1 BPM
-				settings_->setBPM(currentBPM + 1);
-				break;
-			case TEMPO_UP_5: 	//jump by 5 BPM
-				settings_->setBPM(currentBPM + 5);
-				break;
+				case TEMPO_DOWN:
+					settings_->setBPM(currentBPM - 1);
+					break;
+				case TEMPO_UP:
+					settings_->setBPM(currentBPM + 1);
+					break;
+				case TAP_TEMPO:
+					break;
+				case COPY:
+					break;
+				case PASTE_INSTRUMENT:
+					break;
+				case PASTE_BAR:
+					break;
+				case PASTE_PATTERN:
+					break;
+				case UNDO:
+					break;
 			case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
 				memory_->clearStepsForInstrument(selectedInstrument_);
 				break;
@@ -163,7 +169,6 @@ void SettingsAndFunctionsView::update() {
 				memory_->makeAllInstrumentsActiveUpTo(15);
 				player_->changeActivesForCurrentStepInAllInstrunents(16);
 				break;
-
 			}
 		}
 		SETBIT(buttonStatuses_, button, buttonIsDown);
