@@ -25,6 +25,7 @@ public:
 	unsigned int getNewOns();
 	void setHighlightedButton(unsigned char index);
 	void setIgnoreOffs(bool ignoreOffs);
+	void setIgnoreAll(bool ignoreAll);
 private:
 	ILEDsAndButtonsHW * hw_;
 	IButtonMap * buttonMap_;
@@ -33,6 +34,7 @@ private:
 	Switches stepSwitches_;
 	char currentDownButton_;
 	bool ignoreOffs_;
+	bool ignoreAll_;
 	char highlightedButton_;
 };
 
@@ -46,6 +48,10 @@ inline bool DrumStepsView::getDownButton(unsigned char & button) {
 
 inline void DrumStepsView::setIgnoreOffs(bool ignoreOffs) {
 	ignoreOffs_ = ignoreOffs;
+}
+
+inline void DrumStepsView::setIgnoreAll(bool ignoreAll) {
+	ignoreAll_ = ignoreAll;
 }
 
 

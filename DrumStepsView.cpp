@@ -14,6 +14,7 @@ DrumStepsView::DrumStepsView() :
 	lastStatus_(0),
 	currentDownButton_(-1),
 	ignoreOffs_(false),
+	ignoreAll_(false),
 	highlightedButton_(-1) {
 }
 
@@ -39,10 +40,14 @@ DrumStepsView::~DrumStepsView() {
 			bool newStepValue = stepSwitches_.getStatus(i);
 			if (stepValue != newStepValue) {
 				if (newStepValue) {
-					hw_->setLED(buttonMap_->getStepButtonIndex(i), (i == highlightedButton_) ? ILEDHW::ON : ILEDHW::DULLON);
-					currentStatus_ = currentStatus_ | (1 << i);
+					if (ignoreAll_) {
+						stepSwitches_.setStatus(i, false);
+					} else {
+						hw_->setLED(buttonMap_->getStepButtonIndex(i), (i == highlightedButton_) ? ILEDHW::ON : ILEDHW::DULLON);
+						currentStatus_ = currentStatus_ | (1 << i);
+					}
 				} else {
-					if (ignoreOffs_) {
+					if (ignoreOffs_ || ignoreAll_) {
 						stepSwitches_.setStatus(i, true);
 					} else {
 						hw_->setLED(buttonMap_->getStepButtonIndex(i), ILEDHW::OFF);
