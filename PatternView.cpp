@@ -37,7 +37,7 @@ void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepM
 
 	//Present instrument settings
 	for (unsigned char i = 0; i < 6; i++) {
-		bool instrumentStatus = settings_->isInstrumentOn(Step::DRUM, i);
+		bool instrumentStatus = settings_->isInstrumentOn(i);
 		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
 		instrumentSwitches_.setStatus(i, instrumentStatus);
 	}
@@ -76,9 +76,9 @@ void PatternView::update() {
 	}
 	for (unsigned char i = 0; i < 6; i++) {
 		bool newStatus = instrumentSwitches_.getStatus(i);
-		bool oldStatus = settings_->isInstrumentOn(Step::DRUM, i);
+		bool oldStatus = settings_->isInstrumentOn(i);
 		if (newStatus != oldStatus) {
-			settings_->setInstrumentOn(Step::DRUM, i, newStatus);
+			settings_->setInstrumentOn(i, newStatus);
 			instrumentBar_->setInstrumentSelected(i, newStatus);
 		}
 	}

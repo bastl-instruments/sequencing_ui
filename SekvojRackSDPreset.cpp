@@ -17,8 +17,8 @@ const uint8_t CHIP_SELECT = 10;
 SekvojRackSDPreset::SekvojRackSDPreset(){
 
 }
-char presetFileName[7]="ayyyyy";
-void SekvojRackSDPreset::initCard(unsigned char * data){
+char presetFileName[7]="iffccc";
+void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settingsData){
 	if (!card.begin(CHIP_SELECT, SPI_FULL_SPEED)){};
 	if (!file.open(presetFileName, O_RDWR )) { //&root,
 		file.close();
@@ -27,7 +27,8 @@ void SekvojRackSDPreset::initCard(unsigned char * data){
 		} else {
 			for (int j = 0; j < 128; j++) {
 				file.write(&data[0],290);
-				file.write(&data[0],222);
+				file.write(&settingsData[0], 8);
+				file.write(&data[0],214);
 			}
 		}
 		file.close();
@@ -53,6 +54,20 @@ void SekvojRackSDPreset::loadData(unsigned char patternIndex,
 	file.seekSet(patternIndex * 512 + sourceOffset);
 	file.read(&data[targetOffset], size);
 }
+
+void SekvojRackSDPreset::getSettingsData(unsigned char * data) {
+	file.seekSet(290);
+	file.read(&data[0], 6);
+}
+
+void SekvojRackSDPreset::setSettingsData(unsigned char * data) {
+	file.seekSet(290);
+	file.write(&data[0], 6);
+	file.seekSet(802);
+	file.read(&data[0], 8);
+
+}
+
 
 void SekvojRackSDPreset::debug(){
 

@@ -51,6 +51,7 @@ private:
 	SekvojRackSDPreset * sd_;
 
 	Switches playModeSwitch_;
+
 	void reflectQuantizationSettings();
 	void paste(unsigned char fromInstrument,
 			   unsigned char toInstrument,
