@@ -39,7 +39,10 @@
 #define CLEAR_ACTIVES_FOR_INSTRUMENT 14
 #define CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS 15
 
-
+bool SettingsAndFunctionsView::copyDefined = false;
+unsigned char SettingsAndFunctionsView::copyPattern  = 0;
+unsigned char SettingsAndFunctionsView::copyInstrument = 0;
+unsigned char SettingsAndFunctionsView::copyBar = 0;
 
 SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 settings_(0),
@@ -50,8 +53,10 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
 								 buttonStatuses_(0),
 								 memory_(0),
 								 selectedInstrument_(0),
+								 selectedBar_(0),
 								 player_(0),
-								 tapper_(0){
+								 tapper_(0),
+								 sd_(0){
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
@@ -64,8 +69,10 @@ SettingsAndFunctionsView::~SettingsAndFunctionsView() {
 void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settings,
 						 	 	 	InstrumentBar * instrumentBar, IButtonMap * buttonMap,
 						 	 	 	IStepMemory * memory, unsigned char selectedInstrument,
-						 	 	 	Player * player, ITapper * tapper) {
+						 	 	 	unsigned char selectedBar, Player * player, ITapper * tapper,
+						 	 	 	SekvojRackSDPreset * sd) {
 	hw_ = hw;
+	sd_ = sd;
 	tapper_ = tapper;
 	settings_ = settings;
 	instrumentBar_ = instrumentBar;
@@ -73,6 +80,7 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 	buttonMap_ = buttonMap;
 	memory_ = memory;
 	selectedInstrument_ = selectedInstrument;
+	selectedBar_ = selectedBar;
 	player_ = player;
 	quantizationButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	multiplierButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 4);
@@ -89,7 +97,28 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 		hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), isOn ? ILEDHW::ON : ILEDHW::OFF);
 		instrumentButtons_.setStatus(i, isOn);
 	}
+	hw_->setLED(buttonMap_->getStepButtonArray()[4 + selectedBar_], ILEDHW::ON);
+	hw_->setLED(buttonMap_->getStepButtonArray()[8 + copyBar], ILEDHW::ON);
+}
 
+void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
+									 unsigned char toInstrument,
+									 unsigned char fromBar,
+									 unsigned char toBar,
+									 unsigned int size) {
+	unsigned int fromMemoryIndex = (unsigned int)fromInstrument * 48 + (unsigned int)fromBar * 12;
+	unsigned int toMemoryIndex = (unsigned int)toInstrument * 48 + (unsigned int)toBar * 12;
+
+	unsigned char * data = memory_->getDataReference();
+	if (copyDefined) {
+		if (copyPattern != settings_->getCurrentPattern()) {
+				sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, data, size);
+		} else {
+			for (unsigned int i = 0; i < size; i++) {
+				data[toMemoryIndex + i] = data[fromMemoryIndex + i];
+			}
+		}
+	}
 }
 
 void SettingsAndFunctionsView::update() {
@@ -138,7 +167,7 @@ void SettingsAndFunctionsView::update() {
 		bool buttonWasDown = GETBIT(buttonStatuses_, button);
 		bool buttonIsDown = hw_->getButtonState(buttonMap_->getStepButtonIndex(button)) == IButtonHW::DOWN;
 		if (!buttonWasDown && buttonIsDown)  {
-			unsigned int currentBPM = settings_->getBPM();
+			unsigned char currentBPM = settings_->getBPM();
 			switch (button) {
 				case TEMPO_DOWN:
 					settings_->setBPM(currentBPM - 1);
@@ -150,12 +179,20 @@ void SettingsAndFunctionsView::update() {
 					tapper_->tap(hw_->getElapsedBastlCycles());
 					break;
 				case COPY:
+					copyPattern = settings_->getCurrentPattern();
+					copyInstrument = selectedInstrument_;
+					copyBar = selectedBar_;
+					copyDefined = true;
 					break;
+
 				case PASTE_INSTRUMENT:
+					paste(copyInstrument, selectedInstrument_,0 , 0, 48);
 					break;
 				case PASTE_BAR:
+					paste(copyInstrument, selectedInstrument_, copyBar, selectedBar_, 12);
 					break;
 				case PASTE_PATTERN:
+					paste(0, 0, 0, 0, 290);
 					break;
 				case UNDO:
 					break;

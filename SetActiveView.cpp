@@ -80,9 +80,9 @@ ILEDHW::LedState SetActiveView::getLEDStateFromActiveMultiStatus(IStepMemory::Ac
 
 void SetActiveView::updateActives() {
 	unsigned char instrument;
+	unsigned char * data;
 
-	unsigned char data[4] = {0, 0, 0, 0};
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2,  data);
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_,  data);
 
 	IStepMemory::ActiveMultiStatus statuses[16];
 	memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 16, statuses);

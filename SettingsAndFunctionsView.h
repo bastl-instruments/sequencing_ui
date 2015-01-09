@@ -18,6 +18,7 @@
 #include "InstrumentBar.h"
 #include "IButtonMap.h"
 #include <ITapper.h>
+#include "SekvojRackSDPreset.h"
 
 class SettingsAndFunctionsView : public IView {
 public:
@@ -25,7 +26,7 @@ public:
 	~SettingsAndFunctionsView();
 	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settings, InstrumentBar * instrumentBar,
 			  IButtonMap * buttonMap, IStepMemory * memory, unsigned char selectedInstrument,
-			  Player * player, ITapper * tapper);
+			  unsigned char selectedBar, Player * player, ITapper * tapper, SekvojRackSDPreset * sd);
 	void update();
 private:
 	ILEDsAndButtonsHW * hw_;
@@ -43,12 +44,24 @@ private:
 
 	IStepMemory * memory_;
 	unsigned char selectedInstrument_;
+	unsigned char selectedBar_;
 
 	Player * player_;
 	ITapper * tapper_;
+	SekvojRackSDPreset * sd_;
 
 	Switches playModeSwitch_;
 	void reflectQuantizationSettings();
+	void paste(unsigned char fromInstrument,
+			   unsigned char toInstrument,
+			   unsigned char fromBar,
+			   unsigned char toBar,
+			   unsigned int size);
+	static bool copyDefined;
+	static unsigned char copyPattern;
+	static unsigned char copyInstrument;
+	static unsigned char copyBar;
+
 };
 
 #endif /* SETTINGSANDFUNCTIONSVIEW_H_ */

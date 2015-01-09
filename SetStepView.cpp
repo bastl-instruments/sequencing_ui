@@ -41,7 +41,7 @@ SetStepView::~SetStepView() {
 
 void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
 		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/,
-		PlayerSettings * settings) {
+		PlayerSettings * settings, unsigned char selectedBar) {
 	hw_ = hw;
 	memory_ = memory;
 	player_ = player;
@@ -49,10 +49,12 @@ void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * pl
 	buttonMap_ = buttonMap;
 	settings_ = settings;
 	currentPattern_ = pattern;
+	currentPanIndex_ = selectedBar;
 	instrumentCount_ = instrumentCount;
 	//useVelocities_ = useVelocities;
 	currentInstrumentIndex_ = initialInstrument;
 	panButtons_ = new RadioButtons(hw, buttonMap_->getSubStepButtonArray(), 4);
+	panButtons_->setSelectedButton(currentPanIndex_);
 	subStepSwitches_.init(hw, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_ = new RadioButtons(hw, buttonMap_->getInstrumentButtonArray(), instrumentCount_);
 	//if (useVelocities_) {
@@ -74,8 +76,8 @@ void SetStepView::updateConfiguration() {
 }
 
 void SetStepView::updateMutes() {
-	unsigned char data[4] = {0, 0, 0, 0};
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2, data);
+	unsigned char * data;
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_, data);
 	currentStatuses_ = ~((((unsigned int)data[3]) << 8) | data[2]);
 	drumStepView_->setStatus(currentStatuses_);
 }

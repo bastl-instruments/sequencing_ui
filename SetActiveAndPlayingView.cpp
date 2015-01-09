@@ -53,8 +53,8 @@ void SetActiveAndPlayingView::updateConfiguration() {
 }
 
 void SetActiveAndPlayingView::updateActives() {
-	unsigned char data[4] = {0, 0, 0, 0};
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_ * 2,  data);
+	unsigned char * data;
+	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_,  data);
 	for (unsigned char i = 0; i < 16; i++) {
 		bool stepActive = GETBIT(data[i / 8], i % 8);
 		hw_->setLED(buttonMap_->getStepButtonIndex(i), stepActive ? ILEDHW::ON : ILEDHW::OFF);
