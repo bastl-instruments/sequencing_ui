@@ -97,8 +97,6 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 		hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), isOn ? ILEDHW::ON : ILEDHW::OFF);
 		instrumentButtons_.setStatus(i, isOn);
 	}
-	hw_->setLED(buttonMap_->getStepButtonArray()[4 + selectedBar_], ILEDHW::ON);
-	hw_->setLED(buttonMap_->getStepButtonArray()[8 + copyBar], ILEDHW::ON);
 }
 
 void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
