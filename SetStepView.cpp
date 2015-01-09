@@ -104,10 +104,32 @@ void SetStepView::updateMutes() {
 	}
 }*/
 
+void SetStepView::updateCursor() {
+	unsigned char nextStep = player_->getCurrentInstrumentStep(currentInstrumentIndex_);
+	if (nextStep / 16 == currentPanIndex_ && isPlaying_) {
+		drumStepView_->setHighlightedButton(nextStep % 16);
+	} else {
+		drumStepView_->setHighlightedButton(-1);
+	}
+}
+
 void SetStepView::update() {
 
 	instrumentButtons_->update();
 	drumStepView_->update();
+
+	if (hw_->getButtonState(buttonMap_->getJumpButtonIndex()) == IButtonHW::DOWN) {
+		drumStepView_->setIgnoreAll(true);
+		unsigned char pressedButton = 0;
+	    if (drumStepView_->getDownButton(pressedButton)) {
+	    	player_->startLoop(currentPanIndex_ * 4 + pressedButton);
+	    	updateCursor();
+	    	return;
+	    }
+	} else {
+		drumStepView_->setIgnoreAll(false);
+	}
+	player_->stopLoop();
 
 	//updateVelocity();
 
@@ -197,12 +219,6 @@ void SetStepView::update() {
 
 		}
 	}
-
-	unsigned char nextStep = player_->getCurrentInstrumentStep(currentInstrumentIndex_);
-	if (nextStep / 16 == currentPanIndex_ && isPlaying_) {
-		drumStepView_->setHighlightedButton(nextStep % 16);
-	} else {
-		drumStepView_->setHighlightedButton(-1);
-	}
+	updateCursor();
 }
 

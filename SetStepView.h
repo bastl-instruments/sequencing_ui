@@ -59,7 +59,7 @@ private:
 	unsigned char instrumentCount_;
 	//bool useVelocities_;
 	bool isPlaying_;
-
+	void updateCursor();
 };
 
 inline void SetStepView::setPlaying(bool isPlaying) {
