@@ -157,10 +157,17 @@ void SettingsAndFunctionsView::update() {
 		}
 	}
 
+	bool saveButtonDown = hw_->isButtonDown(buttonMap_->getRecordButtonIndex());
+	if (!saveWasDown_ && saveButtonDown) {
+		sd_->setPatternData(settings_->getCurrentPattern(), memory_->getDataReference());
+		sd_->save();
+	}
+	saveWasDown_ = saveButtonDown;
+
 	//Other functions
 	for (unsigned char button = 4; button < 16; button++) {
 		bool buttonWasDown = GETBIT(buttonStatuses_, button);
-		bool buttonIsDown = hw_->getButtonState(buttonMap_->getStepButtonIndex(button)) == IButtonHW::DOWN;
+		bool buttonIsDown = hw_->isButtonDown(buttonMap_->getStepButtonIndex(button));
 		if (!buttonWasDown && buttonIsDown)  {
 			unsigned char currentBPM = settings_->getBPM();
 			switch (button) {
@@ -179,7 +186,6 @@ void SettingsAndFunctionsView::update() {
 					copyBar = selectedBar_;
 					copyDefined = true;
 					break;
-
 				case PASTE_INSTRUMENT:
 					paste(copyInstrument, selectedInstrument_,0 , 0, 48);
 					break;
@@ -190,6 +196,8 @@ void SettingsAndFunctionsView::update() {
 					paste(0, 0, 0, 0, 290);
 					break;
 				case UNDO:
+					sd_->discard();
+					sd_->getPatternData(settings_->getCurrentPattern(), memory_->getDataReference());
 					break;
 				case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
 					memory_->clearStepsForInstrument(selectedInstrument_);

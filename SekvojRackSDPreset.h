@@ -8,6 +8,9 @@
 #ifndef SEKVOJRACKSDPRESET_H_
 #define SEKVOJRACKSDPRESET_H_
 
+#define OFFSET 32768
+
+
 class SekvojRackSDPreset
 {
 public:
@@ -24,12 +27,20 @@ public:
 				  unsigned char * data,
 				  unsigned int size);
 	unsigned char getCurrentPattern(){return currentPattern;};
+	void save();
+	void discard();
+	void copyAllData(unsigned long fromOffset, unsigned long toOffset );
 private:
 	unsigned char currentPattern;
 
 };
 
+inline void SekvojRackSDPreset::save() {
+	copyAllData(0, OFFSET);
+}
 
-
+inline void SekvojRackSDPreset::discard() {
+	copyAllData(OFFSET, 0);
+}
 
 #endif /* SEKVOJRACKSDPRESET_H_ */

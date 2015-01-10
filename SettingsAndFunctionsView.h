@@ -58,6 +58,7 @@ private:
 			   unsigned char fromBar,
 			   unsigned char toBar,
 			   unsigned int size);
+	bool saveWasDown_;
 	static bool copyDefined;
 	static unsigned char copyPattern;
 	static unsigned char copyInstrument;

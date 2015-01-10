@@ -19,11 +19,12 @@ SekvojRackSDPreset::SekvojRackSDPreset(){
 }
 char presetFileName[7]="iffccc";
 void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settingsData){
+	bool fileOpened = true;
 	if (!card.begin(CHIP_SELECT, SPI_FULL_SPEED)){};
 	if (!file.open(presetFileName, O_RDWR )) { //&root,
 		file.close();
 		if (!file.open( presetFileName, O_RDWR | O_CREAT | O_AT_END)) { //&root,
-			//add error loop
+			fileOpened = false;
 		} else {
 			for (int j = 0; j < 128; j++) {
 				file.write(&data[0],290);
@@ -32,9 +33,19 @@ void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settings
 			}
 		}
 		file.close();
-
+		file.open(presetFileName, O_RDWR );
 	}
+	copyAllData(OFFSET, 0);
+}
 
+void SekvojRackSDPreset::copyAllData(unsigned long fromOffset, unsigned long toOffset ) {
+	unsigned char buffer[128];
+	for (unsigned int pattern = 0; pattern < 256; pattern++) {
+		file.seekSet(fromOffset + pattern * 128);
+		file.read(&buffer[0], 128);
+		file.seekSet(toOffset + pattern * 128);
+		file.write(&buffer[0], 128);
+	}
 }
 
 void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned char * data) {
@@ -63,11 +74,12 @@ void SekvojRackSDPreset::getSettingsData(unsigned char * data) {
 void SekvojRackSDPreset::setSettingsData(unsigned char * data) {
 	file.seekSet(290);
 	file.write(&data[0], 6);
+	file.seekSet(OFFSET + 290);
+	file.write(&data[0], 6);
 	file.seekSet(802);
 	file.read(&data[0], 8);
 
 }
-
 
 void SekvojRackSDPreset::debug(){
 
