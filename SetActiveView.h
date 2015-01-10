@@ -23,9 +23,10 @@ public:
 	SetActiveView();
 	~SetActiveView();
 	void init(	ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char currentInstrumentIndex = 0);
+			IButtonMap * buttonMap, unsigned char currentInstrumentIndex = 0, unsigned char currentPanIndex = 0);
 	void update();
 	unsigned char getSelectedInstrumentIndex();
+	unsigned char getSelectedBarIndex();
 private:
 	ILEDsAndButtonsHW * hw_;
 	IStepMemory * memory_;
@@ -50,6 +51,10 @@ private:
 
 inline unsigned char SetActiveView::getSelectedInstrumentIndex() {
 	return currentInstrumentIndex_;
+}
+
+inline unsigned char SetActiveView::getSelectedBarIndex() {
+	return currentPanIndex_;
 }
 
 
