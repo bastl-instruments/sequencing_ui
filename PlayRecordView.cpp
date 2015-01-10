@@ -9,7 +9,8 @@
 #include <MIDICommand.h>
 #include <DrumStep.h>
 
-PlayRecordView::PlayRecordView() : hw_(0), recorder_(0), buttonMap_(0), synchronizer_(0), lastStepIndex_(0), turnOffStep_(true) {
+PlayRecordView::PlayRecordView() : hw_(0), recorder_(0), buttonMap_(0), synchronizer_(0), lastStepIndex_(0), turnOffStep_(true), turnedSteps_(0),
+								   stepReseted_(true), substepReseted_(true){
 }
 
 PlayRecordView::~PlayRecordView() {
@@ -23,25 +24,35 @@ void PlayRecordView::init(ILEDsAndButtonsHW * hw, StepRecorder * recorder, IButt
 }
 
 void PlayRecordView::updateStatusView() {
+	unsigned int currentSubStep = synchronizer_->getCurrentStepNumber();
+	if (currentSubStep % 4 == 0) {
+		if (!substepReseted_) {
+			turnedSubSteps_ = 0;
+		}
+		substepReseted_ = true;
+
+	} else {
+		substepReseted_ = false;
+	}
+	if ((currentSubStep / 4) % 16 == 0) {
+		if (!stepReseted_) {
+			turnedSteps_ = 0;
+		}
+		stepReseted_ = true;
+
+	} else {
+		stepReseted_ = false;
+	}
 	for (unsigned char panIndex = 0; panIndex < 4; panIndex++) {
-		bool isCurrentPan = synchronizer_->getCurrentStepNumber() / 64 == panIndex;
-		hw_->setLED(buttonMap_->getSubStepButtonIndex(panIndex), isCurrentPan ? ILEDHW::ON : ILEDHW::OFF);
+		bool hasTurned = GETBIT(turnedSubSteps_, panIndex);
+		hw_->setLED(buttonMap_->getSubStepButtonIndex(panIndex), hasTurned ? ILEDHW::ON : ILEDHW::OFF);
 	}
 	for (unsigned char stepIndex = 0; stepIndex < 16; stepIndex++) {
-		bool isCurrentStep = (synchronizer_->getCurrentStepNumber() % 64) / 4 == stepIndex;
-		if (isCurrentStep && stepIndex != lastStepIndex_) {
-			if (stepIndex == 0) {
-				for (unsigned char index = 0; index < 16; index++) {
-					hw_->setLED(buttonMap_->getStepButtonIndex(index), ILEDHW::OFF);
-				}
-			}
-			if (turnOffStep_) {
-				hw_->setLED(buttonMap_->getStepButtonIndex(lastStepIndex_), ILEDHW::OFF);
-			}
-			turnOffStep_ = true;
-			lastStepIndex_ = stepIndex;
-			hw_->setLED(buttonMap_->getStepButtonIndex(lastStepIndex_), ILEDHW::ON );
-		}
+		bool isCurrentStep = (currentSubStep / 4) % 16 == stepIndex;
+		bool hasTurned = GETBIT(turnedSteps_, stepIndex);
+		hw_->setLED(buttonMap_->getStepButtonIndex(stepIndex),
+				   (hasTurned || isCurrentStep) ? ILEDHW::ON :
+						   	   	   	   	   	      ILEDHW::OFF);
 	}
 }
 
@@ -51,8 +62,9 @@ void PlayRecordView::update() {
 		bool currentStatus = (currentStatus_ & (1 << i)) != 0;
 		bool newStatus = hw_->isButtonDown(buttonMap_->getInstrumentButtonIndex(i));
 		if (!currentStatus && newStatus) {
-			recorder_->startRecordNote(i);
-			turnOffStep_ =  false;
+			unsigned int substep = recorder_->startRecordNote(i);
+			SETBITTRUE(turnedSteps_, (substep / 4) % 16);
+			SETBITTRUE(turnedSubSteps_, (substep % 4));
 		}
 		if (currentStatus && !newStatus) {
 			recorder_->stopRecordNote(i);

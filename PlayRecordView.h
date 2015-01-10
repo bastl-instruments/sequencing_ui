@@ -31,6 +31,11 @@ private:
 	unsigned char lastStepIndex_;
 	bool turnOffStep_;
 
+	unsigned int turnedSteps_;
+	unsigned char turnedSubSteps_;
+	bool stepReseted_;
+	bool substepReseted_;
+
 	void updateStatusView();
 };
 
