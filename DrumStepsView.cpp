@@ -24,7 +24,7 @@ DrumStepsView::~DrumStepsView() {
 	void DrumStepsView::init (ILEDsAndButtonsHW * hw, IButtonMap * buttonMap) {
 		hw_ = hw;
 		buttonMap_ = buttonMap;
-		stepSwitches_.init(hw_, buttonMap_->getStepButtonArray(), 16, IButtonHW::UP);
+		stepSwitches_.init(hw_, buttonMap_->getStepButtonArray(), 16, false, IButtonHW::UP);
 	}
 
 	void DrumStepsView::update() {

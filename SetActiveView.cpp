@@ -54,11 +54,11 @@ void SetActiveView::updateConfiguration() {
 	}
 
 	for (unsigned char i = 0; i < 4; i++) {
-		if (i == currentPanIndex_) {
-			hw_->setLED(buttonMap_->getSubStepButtonIndex(i), ILEDHW::ON);
-		} else {
-			hw_->setLED(buttonMap_->getSubStepButtonIndex(i), anyActive[i] ? ILEDHW::DULLON : ILEDHW::OFF);
+		ILEDHW::LedState newLEDState = ILEDHW::ON;
+		if (i != currentPanIndex_) {
+			newLEDState = anyActive[i] ? ILEDHW::DULLON : ILEDHW::OFF;
 		}
+		hw_->setLED(buttonMap_->getSubStepButtonIndex(i), newLEDState);
 	}
 
 	for (unsigned char i = 0; i < 6; i++) {

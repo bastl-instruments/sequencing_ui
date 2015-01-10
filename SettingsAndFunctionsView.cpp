@@ -82,19 +82,18 @@ void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * set
 	selectedInstrument_ = selectedInstrument;
 	selectedBar_ = selectedBar;
 	player_ = player;
+
 	quantizationButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	multiplierButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 4);
-	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
-	playModeSwitch_.init(hw_, buttonMap_->getMainMenuButtonArray() + 2, 1);
+	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6, true);
+	playModeSwitch_.init(hw_, buttonMap_->getMainMenuButtonArray() + 2, 1, true);
 	bool isMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
 	playModeSwitch_.setStatus(0, isMaster);
-	hw_->setLED(buttonMap_->getPlayButtonIndex(), isMaster ? ILEDHW::ON : ILEDHW::OFF);
 	quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
 	multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
 
 	for (unsigned char i = 0; i < 6; i++) {
 		bool isOn = settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
-		hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), isOn ? ILEDHW::ON : ILEDHW::OFF);
 		instrumentButtons_.setStatus(i, isOn);
 	}
 }
@@ -130,7 +129,6 @@ void SettingsAndFunctionsView::update() {
 	bool settingsWasMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
 	if (playModeSwitch_.getStatus(0) != settingsWasMaster) {
 		settings_->setPlayerMode(settingsWasMaster ? PlayerSettings::SLAVE : PlayerSettings::MASTER);
-		hw_->setLED(buttonMap_->getPlayButtonIndex(), settingsWasMaster ? ILEDHW::OFF : ILEDHW::ON);
 	}
 
 	//Quantization settings
@@ -155,7 +153,6 @@ void SettingsAndFunctionsView::update() {
 		PlayerSettings::DrumInstrumentEventType newType = instrumentButtons_.getStatus(i) ?
 				PlayerSettings::GATE : PlayerSettings::TRIGGER;
 		if (currentType != newType) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), newType == PlayerSettings::GATE ? ILEDHW::ON : ILEDHW::OFF);
 			settings_->setDrumInstrumentEventType(i, newType);
 		}
 	}
