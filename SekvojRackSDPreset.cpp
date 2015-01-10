@@ -1,4 +1,4 @@
-/*
+/*s
  * SekvojRackSDPreset.cpp
  *
  *  Created on: Dec 16, 2014
@@ -68,14 +68,14 @@ void SekvojRackSDPreset::loadData(unsigned char patternIndex,
 
 void SekvojRackSDPreset::getSettingsData(unsigned char * data) {
 	file.seekSet(290);
-	file.read(&data[0], 6);
+	file.read(&data[0], 8);
 }
 
 void SekvojRackSDPreset::setSettingsData(unsigned char * data) {
 	file.seekSet(290);
-	file.write(&data[0], 6);
+	file.write(&data[0], 8);
 	file.seekSet(OFFSET + 290);
-	file.write(&data[0], 6);
+	file.write(&data[0], 8);
 	file.seekSet(802);
 	file.read(&data[0], 8);
 

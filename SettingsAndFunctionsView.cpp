@@ -169,10 +169,12 @@ void SettingsAndFunctionsView::update() {
 		bool buttonWasDown = GETBIT(buttonStatuses_, button);
 		bool buttonIsDown = hw_->isButtonDown(buttonMap_->getStepButtonIndex(button));
 		if (!buttonWasDown && buttonIsDown)  {
-			unsigned char currentBPM = settings_->getBPM();
+			unsigned int currentBPM = settings_->getBPM();
 			switch (button) {
 				case TEMPO_DOWN:
-					settings_->setBPM(currentBPM - 1);
+					if (currentBPM > 0) {
+						settings_->setBPM(currentBPM - 1);
+					}
 					break;
 				case TEMPO_UP:
 					settings_->setBPM(currentBPM + 1);
