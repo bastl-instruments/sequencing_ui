@@ -9,6 +9,7 @@
 #include <BitArrayOperations.h>
 
 PatternView::PatternView() : hw_(0), settings_(0), memory_(0), instrumentBar_(0),
+							 player_(0),
 							 patternSelectRadioButtons_(0),
 							 panSelectRadioButtons_(0),
 							 currentPattern_(0),
@@ -20,12 +21,14 @@ PatternView::~PatternView() {
 	delete panSelectRadioButtons_;
 }
 
-void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory, InstrumentBar * instrumentBar, IButtonMap * buttonMap) {
+void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory,
+					   InstrumentBar * instrumentBar, IButtonMap * buttonMap, Player * player) {
 	hw_ = hw;
 	settings_ = settigns;
 	memory_ = memory;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
+	player_ = player;
 	currentPattern_ = settings_->getCurrentPattern();
 	currentPan_ = currentPattern_ / 16;
 
@@ -80,6 +83,9 @@ void PatternView::update() {
 		if (newStatus != oldStatus) {
 			settings_->setInstrumentOn(i, newStatus);
 			instrumentBar_->setInstrumentSelected(i, newStatus);
+			if (newStatus && !player_->isPlaying()) {
+				player_->playNote(i, DrumStep::NORMAL);
+			}
 		}
 	}
 }

@@ -16,12 +16,14 @@
 #include "InstrumentBar.h"
 #include "IButtonMap.h"
 #include <ILEDsAndButtonsHW.h>
+#include <Player.h>
 
 class PatternView  : public IView {
 public:
 	PatternView();
 	~PatternView();
-	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory, InstrumentBar * instrumentBar, IButtonMap * buttonMap);
+	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory,
+			  InstrumentBar * instrumentBar, IButtonMap * buttonMap, Player * player);
 	virtual void update();
 private:
 
@@ -30,7 +32,7 @@ private:
 	IStepMemory * memory_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
-
+	Player * player_;
 	//Controls
 	Switches instrumentSwitches_;
 	LEDRadioButtons * patternSelectRadioButtons_;
