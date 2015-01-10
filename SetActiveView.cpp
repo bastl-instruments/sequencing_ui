@@ -125,13 +125,13 @@ void SetActiveView::update() {
 		updateConfiguration();
 		return;
 	}
-	bool shift = hw_->getButtonState(buttonMap_->getFunctionButtonIndex()) == IButtonHW::DOWN;
+	bool shift = hw_->isButtonDown(buttonMap_->getFunctionButtonIndex());
 	if (shift) {
 
 		//We take the highest currently pressed pan
 		//to increase number of active steps up to that pan
 		for (unsigned char pan = 0; pan < 4; pan++) {
-			if (hw_->getButtonState(buttonMap_->getSubStepButtonIndex(pan)) == IButtonHW::DOWN) {
+			if (hw_->isButtonDown(buttonMap_->getSubStepButtonIndex(pan))) {
 				setActiveUpTo(((pan + 1) * 16) - 1, isInstrumentSelected);
 				updateConfiguration();
 				break;

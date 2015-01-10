@@ -118,7 +118,7 @@ void SetStepView::update() {
 	instrumentButtons_->update();
 	drumStepView_->update();
 
-	if (hw_->getButtonState(buttonMap_->getJumpButtonIndex()) == IButtonHW::DOWN) {
+	if (hw_->isButtonDown(buttonMap_->getJumpButtonIndex())) {
 		drumStepView_->setIgnoreAll(true);
 		unsigned char pressedButton = 0;
 	    if (drumStepView_->getDownButton(pressedButton)) {

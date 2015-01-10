@@ -32,7 +32,7 @@ DrumStepsView::~DrumStepsView() {
 		stepSwitches_.update();
 		currentDownButton_ = -1;
 		for (unsigned char i = 0; i < 16; i++) {
-			if (hw_->getButtonState(buttonMap_->getStepButtonIndex(i)) == IButtonHW::DOWN) {
+			if (hw_->isButtonDown(buttonMap_->getStepButtonIndex(i))) {
 				currentDownButton_ = i;
 			}
 
