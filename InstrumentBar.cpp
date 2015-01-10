@@ -21,43 +21,34 @@ void InstrumentBar::init(ILEDHW* hw, IButtonMap * buttonMap, unsigned char instr
 void InstrumentBar::setActive(bool isActive) {
 	isActive_ = isActive;
 	for (unsigned char i = 0; i < instrumentCount_; i++) {
-		if (isActive && GETBIT(currentPlayingStatuses_, i)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::ON);
-		} else {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::OFF);
-		}
+		ILEDHW::LedState state = (isActive && GETBIT(currentPlayingStatuses_, i)) ? ILEDHW::ON :
+																					ILEDHW::OFF;
+		hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), state);
 	}
 }
 
 void InstrumentBar::setInstrumentSelected(unsigned char instrumentIndex, bool isSelected) {
 	SETBIT(currentSelectedStatuses_, instrumentIndex, isSelected);
-	if (isActive_) {
-		if (isSelected && !GETBIT(currentPlayingStatuses_, instrumentIndex)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::DULLON);
-		}
-		if (!isSelected && !GETBIT(currentPlayingStatuses_, instrumentIndex)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::OFF);
-		}
+	if (isActive_ && !GETBIT(currentPlayingStatuses_, instrumentIndex)) {
+		hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), isSelected ? ILEDHW::DULLON:
+																						ILEDHW::OFF);
 	}
 }
 
 void InstrumentBar::setInstrumentPlaying(unsigned char instrumentIndex, bool isPlaying) {
 	SETBIT(currentPlayingStatuses_, instrumentIndex, isPlaying);
 	if (isActive_) {
+		ILEDHW::LedState status = GETBIT(currentSelectedStatuses_, instrumentIndex) ? ILEDHW::DULLON :
+																					  ILEDHW::OFF;
 		if (isPlaying) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), ILEDHW::ON);
-		} else {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex),
-						GETBIT(currentSelectedStatuses_, instrumentIndex) ? ILEDHW::DULLON : ILEDHW::OFF );
+			status = ILEDHW::ON;
 		}
+		hw_->setLED(buttonMap_->getInstrumentButtonIndex(instrumentIndex), status);
 	}
 }
 
 void InstrumentBar::resetSelected() {
 	for (unsigned char i = 0; i < instrumentCount_; i++) {
-		SETBIT(currentSelectedStatuses_, i, false);
-		if (!GETBIT(currentPlayingStatuses_, i)) {
-			hw_->setLED(buttonMap_->getInstrumentButtonIndex(i), ILEDHW::OFF);
-		}
+		setInstrumentSelected(i, false);
 	}
 }
