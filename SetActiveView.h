@@ -22,17 +22,11 @@ class SetActiveView : public IView {
 public:
 	SetActiveView();
 	~SetActiveView();
-	void init(	ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char currentInstrumentIndex = 0, unsigned char currentPanIndex = 0);
+	void init(unsigned char currentInstrumentIndex = 0, unsigned char currentPanIndex = 0);
 	void update();
 	unsigned char getSelectedInstrumentIndex();
 	unsigned char getSelectedBarIndex();
 private:
-	ILEDsAndButtonsHW * hw_;
-	IStepMemory * memory_;
-	Player * player_;
-	InstrumentBar * instrumentBar_;
-	IButtonMap * buttonMap_;
 
 	unsigned char currentPanIndex_;
 	unsigned char currentInstrumentIndex_;

@@ -20,23 +20,24 @@ class PlayRecordView : public IView {
 public:
 	PlayRecordView();
 	~PlayRecordView();
-	void init(ILEDsAndButtonsHW * hw, StepRecorder * recorder, IButtonMap * buttonMap, StepSynchronizer * synchronizer);
 	virtual void update();
 private:
-	ILEDsAndButtonsHW * hw_;
-	StepRecorder * recorder_;
-	IButtonMap * buttonMap_;
 	unsigned int currentStatus_;
-	StepSynchronizer * synchronizer_;
 	unsigned char lastStepIndex_;
 	bool turnOffStep_;
 
 	unsigned int turnedSteps_;
-	unsigned char turnedSubSteps_;
+	unsigned int turnedSubSteps_;
 	bool stepReseted_;
 	bool substepReseted_;
 
 	void updateStatusView();
+	void updateStatusItem(unsigned char step,
+						  unsigned char stepLength,
+						  unsigned int & statuses,
+	  	  	  	  	  	  bool & resetStatus,
+						  unsigned char * buttonsReference,
+						  bool markCurrentStep = false);
 };
 
 #endif /* PLAYRECORDVIEW_H_ */

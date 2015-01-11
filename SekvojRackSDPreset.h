@@ -27,20 +27,20 @@ public:
 				  unsigned char * data,
 				  unsigned int size);
 	unsigned char getCurrentPattern(){return currentPattern;};
-	void save();
-	void discard();
-	void copyAllData(unsigned long fromOffset, unsigned long toOffset );
+	void save(unsigned int * manipulatedPatternsBitArray);
+	void discard(unsigned int * manipulatedPatternsBitArray);
+	void copyAllData(unsigned long fromOffset, unsigned long toOffset , unsigned int * manipulatedPatternsBitArray = 0);
 private:
 	unsigned char currentPattern;
 
 };
 
-inline void SekvojRackSDPreset::save() {
-	copyAllData(0, OFFSET);
+inline void SekvojRackSDPreset::save(unsigned int * manipulatedPatternsBitArray) {
+	copyAllData(0, OFFSET, manipulatedPatternsBitArray);
 }
 
-inline void SekvojRackSDPreset::discard() {
-	copyAllData(OFFSET, 0);
+inline void SekvojRackSDPreset::discard(unsigned int * manipulatedPatternsBitArray) {
+	copyAllData(OFFSET, 0, manipulatedPatternsBitArray);
 }
 
 #endif /* SEKVOJRACKSDPRESET_H_ */

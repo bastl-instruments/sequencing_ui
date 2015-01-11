@@ -22,17 +22,10 @@ class PatternView  : public IView {
 public:
 	PatternView();
 	~PatternView();
-	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory,
-			  InstrumentBar * instrumentBar, IButtonMap * buttonMap, Player * player);
+	void init();
 	virtual void update();
 private:
 
-	ILEDsAndButtonsHW * hw_;
-	PlayerSettings * settings_;
-	IStepMemory * memory_;
-	InstrumentBar * instrumentBar_;
-	IButtonMap * buttonMap_;
-	Player * player_;
 	//Controls
 	Switches instrumentSwitches_;
 	LEDRadioButtons * patternSelectRadioButtons_;

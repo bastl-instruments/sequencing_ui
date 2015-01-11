@@ -6,7 +6,7 @@
  */
 
 #include "SekvojRackSDPreset.h"
-
+#include "BitArrayOperations.h"
 #include <SdFat.h>
 //#include <SdFatUtil.h>
 
@@ -38,13 +38,19 @@ void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settings
 	copyAllData(OFFSET, 0);
 }
 
-void SekvojRackSDPreset::copyAllData(unsigned long fromOffset, unsigned long toOffset ) {
-	unsigned char buffer[128];
-	for (unsigned int pattern = 0; pattern < 256; pattern++) {
-		file.seekSet(fromOffset + pattern * 128);
-		file.read(&buffer[0], 128);
-		file.seekSet(toOffset + pattern * 128);
-		file.write(&buffer[0], 128);
+void SekvojRackSDPreset::copyAllData(unsigned long fromOffset, unsigned long toOffset, unsigned int * manipulatedPatternsBitArray) {
+	unsigned char buffer[145];
+	for (unsigned char pattern = 0; pattern < 64; pattern++) {
+		bool copy = !manipulatedPatternsBitArray || GETBIT(manipulatedPatternsBitArray[pattern / 16], pattern % 16);
+		if (copy) {
+			for (unsigned char part = 0 ; part < 2; part++){
+				unsigned long indexOffset = pattern * 512 + part * 145;
+				file.seekSet(fromOffset + indexOffset);
+				file.read(&buffer[0], 145);
+				file.seekSet(toOffset + indexOffset);
+				file.write(&buffer[0], 145);
+			}
+		}
 	}
 }
 

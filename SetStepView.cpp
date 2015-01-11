@@ -7,21 +7,15 @@
 
 #include "SetStepView.h"
 #include <BitArrayOperations.h>
+#include "SekvojModulePool.h"
 
-
-SetStepView::SetStepView() : hw_(0),
-								 memory_(0),
-								 player_(0),
-								 instrumentBar_(0),
-								 buttonMap_(0),
-								 currentPattern_(0),
+SetStepView::SetStepView() :     currentPattern_(0),
 								 currentPanIndex_(0),
 								 currentInstrumentIndex_(0),
 								 currentVelocity_(DrumStep::NORMAL),
 								 currentStatuses_(0),
 								 panButtons_(0),
 								 instrumentButtons_(0),
-								 settings_(0),
 								 //velocityRadio_(0),
 								 drumStepView_(0),
 								 inSubStepMode_(false),
@@ -39,45 +33,39 @@ SetStepView::~SetStepView() {
 	delete drumStepView_;
 }
 
-void SetStepView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-		IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument/*, bool useVelocities*/,
-		PlayerSettings * settings, unsigned char selectedBar) {
-	hw_ = hw;
-	memory_ = memory;
-	player_ = player;
-	instrumentBar_ = instrumentBar;
-	buttonMap_ = buttonMap;
-	settings_ = settings;
+void SetStepView::init(unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument
+					   /*, bool useVelocities*/, unsigned char selectedBar) {
+
 	currentPattern_ = pattern;
 	currentPanIndex_ = selectedBar;
 	instrumentCount_ = instrumentCount;
 	//useVelocities_ = useVelocities;
 	currentInstrumentIndex_ = initialInstrument;
-	panButtons_ = new RadioButtons(hw, buttonMap_->getSubStepButtonArray(), 4);
+	panButtons_ = new RadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
 	panButtons_->setSelectedButton(currentPanIndex_);
-	subStepSwitches_.init(hw, buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_ = new RadioButtons(hw, buttonMap_->getInstrumentButtonArray(), instrumentCount_);
+	subStepSwitches_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	instrumentButtons_ = new RadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), instrumentCount_);
 	//if (useVelocities_) {
 	//	velocityRadio_ = new RadioButtons(hw_, buttonMap_->getVelocityButtonArray(), 2);
 	//}
 	drumStepView_ = new DrumStepsView();
-	drumStepView_->init(hw_, buttonMap_);
+	drumStepView_->init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_);
 	updateConfiguration();
 }
 
 void SetStepView::updateConfiguration() {
 	for (unsigned char i = 0; i < 4; i++) {
-		hw_->setLED(buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
+		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
 	}
 	for (unsigned char i = 0; i < instrumentCount_; i++) {
-		instrumentBar_->setInstrumentSelected(i, i == currentInstrumentIndex_);
+		SekvojModulePool::instrumentBar_->setInstrumentSelected(i, i == currentInstrumentIndex_);
 	}
 	updateMutes();
 }
 
 void SetStepView::updateMutes() {
 	unsigned char * data;
-	memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_, data);
+	SekvojModulePool::memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_, data);
 	currentStatuses_ = ~((((unsigned int)data[3]) << 8) | data[2]);
 	drumStepView_->setStatus(currentStatuses_);
 }
@@ -105,7 +93,7 @@ void SetStepView::updateMutes() {
 }*/
 
 void SetStepView::updateCursor() {
-	unsigned char nextStep = player_->getCurrentInstrumentStep(currentInstrumentIndex_);
+	unsigned char nextStep = SekvojModulePool::player_->getCurrentInstrumentStep(currentInstrumentIndex_);
 	if (nextStep / 16 == currentPanIndex_ && isPlaying_) {
 		drumStepView_->setHighlightedButton(nextStep % 16);
 	} else {
@@ -118,18 +106,18 @@ void SetStepView::update() {
 	instrumentButtons_->update();
 	drumStepView_->update();
 
-	if (hw_->isButtonDown(buttonMap_->getJumpButtonIndex())) {
+	if (SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getJumpButtonIndex())) {
 		drumStepView_->setIgnoreAll(true);
 		unsigned char pressedButton = 0;
 	    if (drumStepView_->getDownButton(pressedButton)) {
-	    	player_->startLoop(currentPanIndex_ * 4 + pressedButton);
+	    	SekvojModulePool::player_->startLoop(currentPanIndex_ * 4 + pressedButton);
 	    	updateCursor();
 	    	return;
 	    }
 	} else {
 		drumStepView_->setIgnoreAll(false);
 	}
-	player_->stopLoop();
+	SekvojModulePool::player_->stopLoop();
 
 	//updateVelocity();
 
@@ -147,41 +135,41 @@ void SetStepView::update() {
 		if (!inSubStepMode_) {
 			inSubStepMode_ = true;
 			drumStepView_->setIgnoreOffs(false);
-			DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
+			DrumStep step = SekvojModulePool::memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
 			bool anyOn = false;
 			for (unsigned char i = 0; i < 4; i++) {
 				bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
 				anyOn = anyOn || substepHasNote;
-				hw_->setLED(buttonMap_->getSubStepButtonIndex(i), substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
+				SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
 				subStepSwitches_.setStatus(i, substepHasNote);
 			}
 			if (!anyOn) {
 				for (unsigned char subStep = 0; subStep < 4; subStep++) {
-					if (subStep == 0 || settings_->getDrumInstrumentEventType(currentInstrumentIndex_) == PlayerSettings::GATE) {
+					if (subStep == 0 || SekvojModulePool::settings_->getDrumInstrumentEventType(currentInstrumentIndex_) == PlayerSettings::GATE) {
 						step.setSubStep(subStep, currentVelocity_);
-						hw_->setLED(buttonMap_->getSubStepButtonIndex(subStep), ILEDHW::ON);
+						SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(subStep), ILEDHW::ON);
 						subStepSwitches_.setStatus(subStep, true);
 					}
 				}
-				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
+				SekvojModulePool::memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
 			}
 		} else {
 			inSubStepMode_ = false;
 			for (unsigned char i = 0; i < 4; i++) {
-				hw_->setLED(buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
+				SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), i == currentPanIndex_ ? ILEDHW::ON : ILEDHW::OFF);
 			}
 		}
 	}
 	if (inSubStepMode_) {
 		subStepSwitches_.update();
-		DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
+		DrumStep step = SekvojModulePool::memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
 		for (unsigned char i = 0; i < 4; i++) {
 			bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
 			if (substepHasNote != subStepSwitches_.getStatus(i)) {
 				drumStepView_->setIgnoreOffs(true);
 				step.setSubStep(i, substepHasNote ? DrumStep::OFF : currentVelocity_);
-				hw_->setLED(buttonMap_->getSubStepButtonIndex(i), !substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
-				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
+				SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), !substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
+				SekvojModulePool::memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
 			}
 		}
 	} else {
@@ -197,7 +185,7 @@ void SetStepView::update() {
 			return;
 		}
 	} else {
-		newPan = player_->getCurrentInstrumentStep(currentInstrumentIndex_) / 16;
+		newPan = SekvojModulePool::player_->getCurrentInstrumentStep(currentInstrumentIndex_) / 16;
 		if (currentPanIndex_ != newPan) {
 			currentPanIndex_ = newPan;
 			updateConfiguration();
@@ -212,9 +200,10 @@ void SetStepView::update() {
 			bool changeToOn = GETBIT(newOns, i);
 			bool changeToOff = GETBIT(newOffs, i);
 			if (changeToOn || changeToOff) {
-				DrumStep step = memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + i);
+				unsigned char currentStepIndex = (currentPanIndex_ * 16) + i;
+				DrumStep step = SekvojModulePool::memory_->getDrumStep(currentInstrumentIndex_, currentStepIndex);
 				step.setMuted(changeToOff);
-				memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + i, step);
+				SekvojModulePool::memory_->setDrumStep(currentInstrumentIndex_, currentStepIndex, step);
 			}
 
 		}

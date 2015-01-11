@@ -7,6 +7,7 @@
 
 #include "SettingsAndFunctionsView.h"
 #include <BitArrayOperations.h>
+#include "SekvojModulePool.h"
 
 #define MASTER_SLAVE //PLAY_BUTTON
 
@@ -23,6 +24,8 @@
 #define CLOCK_INPUT_MULTIPLIER_32 3
 
 //here instead of 5 tempo jumps might come something else when we have idea what else it could be
+
+#define SAVE_NOT_IN_ORDER 3
 
 #define UNDO 4
 #define COPY 5
@@ -44,56 +47,37 @@ unsigned char SettingsAndFunctionsView::copyPattern  = 0;
 unsigned char SettingsAndFunctionsView::copyInstrument = 0;
 unsigned char SettingsAndFunctionsView::copyBar = 0;
 
-SettingsAndFunctionsView::SettingsAndFunctionsView() : hw_(0),
-								 settings_(0),
-								 instrumentBar_(0),
-								 buttonMap_(0),
+SettingsAndFunctionsView::SettingsAndFunctionsView() :
 								 quantizationButtons_(0),
 								 multiplierButtons_(0),
 								 buttonStatuses_(0),
-								 memory_(0),
 								 selectedInstrument_(0),
-								 selectedBar_(0),
-								 player_(0),
-								 tapper_(0),
-								 sd_(0){
+								 selectedBar_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
 	delete quantizationButtons_;
 	delete multiplierButtons_;
-	instrumentBar_->setActive(true);
+	SekvojModulePool::instrumentBar_->setActive(true);
 }
 
 
-void SettingsAndFunctionsView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settings,
-						 	 	 	InstrumentBar * instrumentBar, IButtonMap * buttonMap,
-						 	 	 	IStepMemory * memory, unsigned char selectedInstrument,
-						 	 	 	unsigned char selectedBar, Player * player, ITapper * tapper,
-						 	 	 	SekvojRackSDPreset * sd) {
-	hw_ = hw;
-	sd_ = sd;
-	tapper_ = tapper;
-	settings_ = settings;
-	instrumentBar_ = instrumentBar;
-	instrumentBar_->setActive(false);
-	buttonMap_ = buttonMap;
-	memory_ = memory;
+void SettingsAndFunctionsView::init(unsigned char selectedInstrument, unsigned char selectedBar) {
+	SekvojModulePool::instrumentBar_->setActive(false);
 	selectedInstrument_ = selectedInstrument;
 	selectedBar_ = selectedBar;
-	player_ = player;
 
-	quantizationButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
-	multiplierButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 4);
-	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6, true);
-	playModeSwitch_.init(hw_, buttonMap_->getMainMenuButtonArray() + 2, 1, true);
-	bool isMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
+	quantizationButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	multiplierButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6, true);
+	playModeSwitch_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 2, 1, true);
+	bool isMaster = SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER;
 	playModeSwitch_.setStatus(0, isMaster);
-	quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
-	multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
+	quantizationButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
+	multiplierButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
 
 	for (unsigned char i = 0; i < 6; i++) {
-		bool isOn = settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
+		bool isOn = SekvojModulePool::settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
 		instrumentButtons_.setStatus(i, isOn);
 	}
 }
@@ -106,10 +90,10 @@ void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
 	unsigned int fromMemoryIndex = (unsigned int)fromInstrument * 48 + (unsigned int)fromBar * 12;
 	unsigned int toMemoryIndex = (unsigned int)toInstrument * 48 + (unsigned int)toBar * 12;
 
-	unsigned char * data = memory_->getDataReference();
+	unsigned char * data = SekvojModulePool::memory_->getDataReference();
 	if (copyDefined) {
-		if (copyPattern != settings_->getCurrentPattern()) {
-				sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, data, size);
+		if (copyPattern != SekvojModulePool::settings_->getCurrentPattern()) {
+			SekvojModulePool::sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, data, size);
 		} else {
 			for (unsigned int i = 0; i < size; i++) {
 				data[toMemoryIndex + i] = data[fromMemoryIndex + i];
@@ -126,64 +110,65 @@ void SettingsAndFunctionsView::update() {
 	playModeSwitch_.update();
 
 	//update player mode
-	bool settingsWasMaster = settings_->getPlayerMode() == PlayerSettings::MASTER;
+	bool settingsWasMaster = SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER;
 	if (playModeSwitch_.getStatus(0) != settingsWasMaster) {
-		settings_->setPlayerMode(settingsWasMaster ? PlayerSettings::SLAVE : PlayerSettings::MASTER);
+		SekvojModulePool::settings_->setPlayerMode(settingsWasMaster ? PlayerSettings::SLAVE : PlayerSettings::MASTER);
 	}
 
 	//Quantization settings
 	unsigned char quantizationIndex = 0;
 	if (quantizationButtons_->getSelectedButton(quantizationIndex)) {
-		settings_->setRecordQuantizationType((PlayerSettings::QuantizationType)(quantizationIndex));
+		SekvojModulePool::settings_->setRecordQuantizationType((PlayerSettings::QuantizationType)(quantizationIndex));
 	} else {
-		quantizationButtons_->setSelectedButton((char)(settings_->getRecordQuantizationType()));
+		quantizationButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
 	}
 
 	//Multiplication settings
 	unsigned char multiplierIndex = 0;
 	if (multiplierButtons_->getSelectedButton(multiplierIndex)) {
-		settings_->setMultiplication((PlayerSettings::MultiplicationType)(multiplierIndex));
+		SekvojModulePool::settings_->setMultiplication((PlayerSettings::MultiplicationType)(multiplierIndex));
 	} else {
-		multiplierButtons_->setSelectedButton((char)(settings_->getMultiplication()));
+		multiplierButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
 	}
 
 	// Update playing instruments settings
 	for (unsigned char i = 0; i < 6; i++) {
-		PlayerSettings::DrumInstrumentEventType currentType = settings_->getDrumInstrumentEventType(i);
+		PlayerSettings::DrumInstrumentEventType currentType = SekvojModulePool::settings_->getDrumInstrumentEventType(i);
 		PlayerSettings::DrumInstrumentEventType newType = instrumentButtons_.getStatus(i) ?
 				PlayerSettings::GATE : PlayerSettings::TRIGGER;
 		if (currentType != newType) {
-			settings_->setDrumInstrumentEventType(i, newType);
+			SekvojModulePool::settings_->setDrumInstrumentEventType(i, newType);
 		}
 	}
 
-	bool saveButtonDown = hw_->isButtonDown(buttonMap_->getRecordButtonIndex());
-	if (!saveWasDown_ && saveButtonDown) {
-		sd_->setPatternData(settings_->getCurrentPattern(), memory_->getDataReference());
-		sd_->save();
-	}
-	saveWasDown_ = saveButtonDown;
-
 	//Other functions
-	for (unsigned char button = 4; button < 16; button++) {
+	for (unsigned char button = 3; button < 16; button++) {
 		bool buttonWasDown = GETBIT(buttonStatuses_, button);
-		bool buttonIsDown = hw_->isButtonDown(buttonMap_->getStepButtonIndex(button));
+		unsigned char buttonIndex = (button == 3) ? SekvojModulePool::buttonMap_->getRecordButtonIndex() :
+													SekvojModulePool::buttonMap_->getStepButtonIndex(button);
+		bool buttonIsDown = SekvojModulePool::hw_->isButtonDown(buttonIndex);
 		if (!buttonWasDown && buttonIsDown)  {
-			unsigned int currentBPM = settings_->getBPM();
+			unsigned int currentBPM = SekvojModulePool::settings_->getBPM();
 			switch (button) {
+				case SAVE_NOT_IN_ORDER:
+					SekvojModulePool::sd_->setPatternData(SekvojModulePool::settings_->getCurrentPattern(),
+														  SekvojModulePool::memory_->getDataReference());
+					SekvojModulePool::sd_->save(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
+					SekvojModulePool::settings_->resetManipulatedPatterns();
+				break;
 				case TEMPO_DOWN:
 					if (currentBPM > 0) {
-						settings_->setBPM(currentBPM - 1);
+						SekvojModulePool::settings_->setBPM(currentBPM - 1);
 					}
 					break;
 				case TEMPO_UP:
-					settings_->setBPM(currentBPM + 1);
+					SekvojModulePool::settings_->setBPM(currentBPM + 1);
 					break;
 				case TAP_TEMPO:
-					tapper_->tap(hw_->getElapsedBastlCycles());
+					SekvojModulePool::tapper_->tap(SekvojModulePool::hw_->getElapsedBastlCycles());
 					break;
 				case COPY:
-					copyPattern = settings_->getCurrentPattern();
+					copyPattern = SekvojModulePool::settings_->getCurrentPattern();
 					copyInstrument = selectedInstrument_;
 					copyBar = selectedBar_;
 					copyDefined = true;
@@ -198,22 +183,23 @@ void SettingsAndFunctionsView::update() {
 					paste(0, 0, 0, 0, 290);
 					break;
 				case UNDO:
-					sd_->discard();
-					sd_->getPatternData(settings_->getCurrentPattern(), memory_->getDataReference());
+					SekvojModulePool::sd_->discard(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
+					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern(), SekvojModulePool::memory_->getDataReference());
+					SekvojModulePool::settings_->resetManipulatedPatterns();
 					break;
 				case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
-					memory_->clearStepsForInstrument(selectedInstrument_);
+					SekvojModulePool::memory_->clearStepsForInstrument(selectedInstrument_);
 					break;
 				case CLEAR_STEPS_FOR_ALL_INSTRUMENTS: 	// delete just steps
-					memory_->clearStepsForAllInstruments();
+					SekvojModulePool::memory_->clearStepsForAllInstruments();
 					break;
 				case CLEAR_ACTIVES_FOR_INSTRUMENT: 		// delete just steps
-					memory_->makeActiveUpTo(selectedInstrument_, 15);
-					player_->changeActivesForCurrentStep(selectedInstrument_, 16);
+					SekvojModulePool::memory_->makeActiveUpTo(selectedInstrument_, 15);
+					SekvojModulePool::player_->changeActivesForCurrentStep(selectedInstrument_, 16);
 					break;
 				case CLEAR_ACTIVES_FOR_ALL_INSTRUMENTS:
-					memory_->makeAllInstrumentsActiveUpTo(15);
-					player_->changeActivesForCurrentStepInAllInstrunents(16);
+					SekvojModulePool::memory_->makeAllInstrumentsActiveUpTo(15);
+					SekvojModulePool::player_->changeActivesForCurrentStepInAllInstrunents(16);
 					break;
 			}
 		}

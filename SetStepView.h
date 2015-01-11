@@ -23,9 +23,8 @@ class SetStepView : public IView {
 public:
 	SetStepView();
 	~SetStepView();
-	void init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, InstrumentBar * instrumentBar,
-			IButtonMap * buttonMap, unsigned char pattern, unsigned char instrumentCount, unsigned char initialInstrument /*, bool useVelocities*/,
-			PlayerSettings * settings, unsigned char selectedBar);
+	void init(unsigned char pattern, unsigned char instrumentCount,
+			  unsigned char initialInstrument /*, bool useVelocities*/, unsigned char selectedBar);
 	void update();
 	void updateMutes();
 	void updateConfiguration();
@@ -34,12 +33,6 @@ public:
 	unsigned char getSelectedBarIndex();
 	void setPlaying(bool isPlaying);
 private:
-	ILEDsAndButtonsHW * hw_;
-	IStepMemory * memory_;
-	Player * player_;
-	InstrumentBar * instrumentBar_;
-	IButtonMap * buttonMap_;
-	PlayerSettings * settings_;
 
 	unsigned char currentPattern_;
 	unsigned char currentPanIndex_;

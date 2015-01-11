@@ -7,41 +7,34 @@
 
 #include "PatternView.h"
 #include <BitArrayOperations.h>
+#include "SekvojModulePool.h"
 
-PatternView::PatternView() : hw_(0), settings_(0), memory_(0), instrumentBar_(0),
-							 player_(0),
-							 patternSelectRadioButtons_(0),
+PatternView::PatternView() : patternSelectRadioButtons_(0),
 							 panSelectRadioButtons_(0),
 							 currentPattern_(0),
 							 currentPan_(0) {
 }
+
 
 PatternView::~PatternView() {
 	delete patternSelectRadioButtons_;
 	delete panSelectRadioButtons_;
 }
 
-void PatternView::init(ILEDsAndButtonsHW * hw, PlayerSettings * settigns, IStepMemory * memory,
-					   InstrumentBar * instrumentBar, IButtonMap * buttonMap, Player * player) {
-	hw_ = hw;
-	settings_ = settigns;
-	memory_ = memory;
-	instrumentBar_ = instrumentBar;
-	buttonMap_ = buttonMap;
-	player_ = player;
-	currentPattern_ = settings_->getCurrentPattern();
+void PatternView::init() {
+	currentPattern_ = SekvojModulePool::settings_->getCurrentPattern();
 	currentPan_ = currentPattern_ / 16;
 
-	instrumentSwitches_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
-	patternSelectRadioButtons_ = new LEDRadioButtons(hw_, buttonMap_->getStepButtonArray(), 16);
+	instrumentSwitches_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
+	patternSelectRadioButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
 	patternSelectRadioButtons_->setSelectedButton(currentPattern_ % 16);
-	panSelectRadioButtons_ = new LEDRadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	panSelectRadioButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
 	panSelectRadioButtons_->setSelectedButton(currentPan_);
 
 	//Present instrument settings
 	for (unsigned char i = 0; i < 6; i++) {
-		bool instrumentStatus = settings_->isInstrumentOn(i);
-		instrumentBar_->setInstrumentSelected(i, instrumentStatus);
+		bool instrumentStatus = SekvojModulePool::settings_->isInstrumentOn(i);
+		SekvojModulePool::instrumentBar_->setInstrumentSelected(i, instrumentStatus);
 		instrumentSwitches_.setStatus(i, instrumentStatus);
 	}
 }
@@ -73,18 +66,18 @@ void PatternView::update() {
 	bool somethingSelected = patternSelectRadioButtons_->getSelectedButton(newPattern);
 	newPattern += (currentPan_ * 16);
 	if (somethingSelected && (newPattern != currentPattern_)) {
-		settings_->setCurrentPattern(newPattern);
+		SekvojModulePool::settings_->setCurrentPattern(newPattern);
 		currentPattern_ = newPattern;
 		return;
 	}
 	for (unsigned char i = 0; i < 6; i++) {
 		bool newStatus = instrumentSwitches_.getStatus(i);
-		bool oldStatus = settings_->isInstrumentOn(i);
+		bool oldStatus = SekvojModulePool::settings_->isInstrumentOn(i);
 		if (newStatus != oldStatus) {
-			settings_->setInstrumentOn(i, newStatus);
-			instrumentBar_->setInstrumentSelected(i, newStatus);
-			if (newStatus && !player_->isPlaying()) {
-				player_->playNote(i, DrumStep::NORMAL);
+			SekvojModulePool::settings_->setInstrumentOn(i, newStatus);
+			SekvojModulePool::instrumentBar_->setInstrumentSelected(i, newStatus);
+			if (newStatus && !SekvojModulePool::player_->isPlaying()) {
+				SekvojModulePool::player_->playNote(i, DrumStep::NORMAL);
 			}
 		}
 	}

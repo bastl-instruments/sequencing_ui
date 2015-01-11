@@ -24,15 +24,9 @@ class SettingsAndFunctionsView : public IView {
 public:
 	SettingsAndFunctionsView();
 	~SettingsAndFunctionsView();
-	void init(ILEDsAndButtonsHW * hw, PlayerSettings * settings, InstrumentBar * instrumentBar,
-			  IButtonMap * buttonMap, IStepMemory * memory, unsigned char selectedInstrument,
-			  unsigned char selectedBar, Player * player, ITapper * tapper, SekvojRackSDPreset * sd);
+	void init(unsigned char selectedInstrument, unsigned char selectedBar);
 	void update();
 private:
-	ILEDsAndButtonsHW * hw_;
-	PlayerSettings * settings_;
-	InstrumentBar * instrumentBar_;
-	IButtonMap * buttonMap_;
 
 	LEDRadioButtons * quantizationButtons_;
 	LEDRadioButtons * multiplierButtons_;
@@ -42,13 +36,8 @@ private:
 	unsigned char currentInstrumentEventTypes_;
 	unsigned int buttonStatuses_;
 
-	IStepMemory * memory_;
 	unsigned char selectedInstrument_;
 	unsigned char selectedBar_;
-
-	Player * player_;
-	ITapper * tapper_;
-	SekvojRackSDPreset * sd_;
 
 	Switches playModeSwitch_;
 
@@ -58,7 +47,6 @@ private:
 			   unsigned char fromBar,
 			   unsigned char toBar,
 			   unsigned int size);
-	bool saveWasDown_;
 	static bool copyDefined;
 	static unsigned char copyPattern;
 	static unsigned char copyInstrument;
