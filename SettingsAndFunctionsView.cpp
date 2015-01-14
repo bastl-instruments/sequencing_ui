@@ -52,7 +52,8 @@ SettingsAndFunctionsView::SettingsAndFunctionsView() :
 								 multiplierButtons_(0),
 								 buttonStatuses_(0),
 								 selectedInstrument_(0),
-								 selectedBar_(0) {
+								 selectedBar_(0),
+								 blinksToDo_(0) {
 }
 
 SettingsAndFunctionsView::~SettingsAndFunctionsView() {
@@ -103,6 +104,16 @@ void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
 }
 
 void SettingsAndFunctionsView::update() {
+
+	if (blinksToDo_ != 0) {
+		cyclesFromLastBlinkSwitch_++;
+		if (cyclesFromLastBlinkSwitch_ > 99) {
+			blinksToDo_--;
+		}
+		cyclesFromLastBlinkSwitch_ = cyclesFromLastBlinkSwitch_ % 100;
+		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
+				cyclesFromLastBlinkSwitch_ / 50 == 0 ? ILEDHW::OFF : ILEDHW::ON);
+	}
 
 	instrumentButtons_.update();
 	quantizationButtons_->update();
@@ -155,6 +166,7 @@ void SettingsAndFunctionsView::update() {
 														  SekvojModulePool::memory_->getDataReference());
 					SekvojModulePool::sd_->save(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
 					SekvojModulePool::settings_->resetManipulatedPatterns();
+					blinksToDo_ = 2;
 				break;
 				case TEMPO_DOWN:
 					if (currentBPM > 0) {

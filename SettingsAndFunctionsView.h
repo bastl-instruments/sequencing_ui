@@ -38,6 +38,8 @@ private:
 
 	unsigned char selectedInstrument_;
 	unsigned char selectedBar_;
+	unsigned char blinksToDo_;
+	unsigned char cyclesFromLastBlinkSwitch_;
 
 	Switches playModeSwitch_;
 
