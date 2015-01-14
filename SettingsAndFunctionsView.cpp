@@ -158,11 +158,11 @@ void SettingsAndFunctionsView::update() {
 				break;
 				case TEMPO_DOWN:
 					if (currentBPM > 0) {
-						SekvojModulePool::settings_->setBPM(currentBPM - 1);
+						SekvojModulePool::settings_->setBPM(currentBPM - 2);
 					}
 					break;
 				case TEMPO_UP:
-					SekvojModulePool::settings_->setBPM(currentBPM + 1);
+					SekvojModulePool::settings_->setBPM(currentBPM + 2);
 					break;
 				case TAP_TEMPO:
 					SekvojModulePool::tapper_->tap(SekvojModulePool::hw_->getElapsedBastlCycles());
