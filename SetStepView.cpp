@@ -125,7 +125,6 @@ void SetStepView::update() {
 	if (instrumentButtons_->getSelectedButton(newInstrument) && currentInstrumentIndex_ != newInstrument) {
 		currentInstrumentIndex_ = newInstrument;
 		currentPanIndex_ = 0;
-		panButtons_->resetSelection();
 		updateConfiguration();
 		return;
 	}
