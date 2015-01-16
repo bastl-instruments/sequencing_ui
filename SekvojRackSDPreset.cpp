@@ -39,16 +39,16 @@ void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settings
 }
 
 void SekvojRackSDPreset::copyAllData(unsigned long fromOffset, unsigned long toOffset, unsigned int * manipulatedPatternsBitArray) {
-	unsigned char buffer[145];
+	unsigned char buffer[97];
 	for (unsigned char pattern = 0; pattern < 64; pattern++) {
 		bool copy = !manipulatedPatternsBitArray || GETBIT(manipulatedPatternsBitArray[pattern / 16], pattern % 16);
 		if (copy) {
-			for (unsigned char part = 0 ; part < 2; part++){
-				unsigned long indexOffset = pattern * 512 + part * 145;
+			for (unsigned char part = 0 ; part < 3; part++){
+				unsigned long indexOffset = pattern * 512 + part * 97;
 				file.seekSet(fromOffset + indexOffset);
-				file.read(&buffer[0], 145);
+				file.read(&buffer[0], 97);
 				file.seekSet(toOffset + indexOffset);
-				file.write(&buffer[0], 145);
+				file.write(&buffer[0], 97);
 			}
 		}
 	}
