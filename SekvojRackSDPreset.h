@@ -17,14 +17,13 @@ public:
 	SekvojRackSDPreset();
 	void debug();
 	void initCard(unsigned char * data, unsigned char * settingsData);
-	void getPatternData(unsigned char patternIndex, unsigned char * data);
-	void setPatternData(unsigned char patternIndex, unsigned char * data);
+	void getPatternData(unsigned char patternIndex);
+	void setPatternData(unsigned char patternIndex);
 	void getSettingsData(unsigned char * data);
 	void setSettingsData(unsigned char * data);
 	void loadData(unsigned char patternIndex,
 				  unsigned int sourceOffset,
 				  unsigned int targetOffset,
-				  unsigned char * data,
 				  unsigned int size);
 	unsigned char getCurrentPattern(){return currentPattern;};
 	void save(unsigned int * manipulatedPatternsBitArray);
@@ -32,6 +31,7 @@ public:
 	void copyAllData(unsigned long fromOffset, unsigned long toOffset , unsigned int * manipulatedPatternsBitArray = 0);
 private:
 	unsigned char currentPattern;
+	unsigned char * dataReference_;
 
 };
 

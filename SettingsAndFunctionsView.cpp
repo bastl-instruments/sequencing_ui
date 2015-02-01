@@ -91,11 +91,11 @@ void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
 	unsigned int fromMemoryIndex = (unsigned int)fromInstrument * 48 + (unsigned int)fromBar * 12;
 	unsigned int toMemoryIndex = (unsigned int)toInstrument * 48 + (unsigned int)toBar * 12;
 
-	unsigned char * data = SekvojModulePool::memory_->getDataReference();
 	if (copyDefined) {
 		if (copyPattern != SekvojModulePool::settings_->getCurrentPattern()) {
-			SekvojModulePool::sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, data, size);
+			SekvojModulePool::sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, size);
 		} else {
+			unsigned char * data = SekvojModulePool::memory_->getDataReference();
 			for (unsigned int i = 0; i < size; i++) {
 				data[toMemoryIndex + i] = data[fromMemoryIndex + i];
 			}
@@ -112,7 +112,7 @@ void SettingsAndFunctionsView::update() {
 		}
 		cyclesFromLastBlinkSwitch_ = cyclesFromLastBlinkSwitch_ % 100;
 		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
-				cyclesFromLastBlinkSwitch_ / 50 == 0 ? ILEDHW::OFF : ILEDHW::ON);
+		-				cyclesFromLastBlinkSwitch_ / 50 == 0 ? ILEDHW::OFF : ILEDHW::ON);
 	}
 
 	instrumentButtons_.update();
@@ -162,9 +162,9 @@ void SettingsAndFunctionsView::update() {
 			unsigned int currentBPM = SekvojModulePool::settings_->getBPM();
 			switch (button) {
 				case SAVE_NOT_IN_ORDER:
-					SekvojModulePool::sd_->setPatternData(SekvojModulePool::settings_->getCurrentPattern(),
-														  SekvojModulePool::memory_->getDataReference());
+					SekvojModulePool::sd_->setPatternData(SekvojModulePool::settings_->getCurrentPattern());
 					SekvojModulePool::sd_->save(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
+					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern());
 					SekvojModulePool::settings_->resetManipulatedPatterns();
 					blinksToDo_ = 2;
 				break;
@@ -196,7 +196,7 @@ void SettingsAndFunctionsView::update() {
 					break;
 				case UNDO:
 					SekvojModulePool::sd_->discard(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
-					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern(), SekvojModulePool::memory_->getDataReference());
+					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern());
 					SekvojModulePool::settings_->resetManipulatedPatterns();
 					break;
 				case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives

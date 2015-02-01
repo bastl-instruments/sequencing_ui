@@ -17,8 +17,11 @@ const uint8_t CHIP_SELECT = 10;
 SekvojRackSDPreset::SekvojRackSDPreset(){
 
 }
+
 char presetFileName[7]="iffccc";
+
 void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settingsData){
+	dataReference_ = data;
 	bool fileOpened = true;
 	if (!card.begin(CHIP_SELECT, SPI_FULL_SPEED)){};
 	if (!file.open(presetFileName, O_RDWR )) { //&root,
@@ -39,37 +42,33 @@ void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settings
 }
 
 void SekvojRackSDPreset::copyAllData(unsigned long fromOffset, unsigned long toOffset, unsigned int * manipulatedPatternsBitArray) {
-	unsigned char buffer[97];
 	for (unsigned char pattern = 0; pattern < 64; pattern++) {
 		bool copy = !manipulatedPatternsBitArray || GETBIT(manipulatedPatternsBitArray[pattern / 16], pattern % 16);
 		if (copy) {
-			for (unsigned char part = 0 ; part < 3; part++){
-				unsigned long indexOffset = pattern * 512 + part * 97;
-				file.seekSet(fromOffset + indexOffset);
-				file.read(&buffer[0], 97);
-				file.seekSet(toOffset + indexOffset);
-				file.write(&buffer[0], 97);
-			}
+			unsigned long indexOffset = pattern * 512;
+			file.seekSet(fromOffset + indexOffset);
+			file.read(&dataReference_[0], 290);
+			file.seekSet(toOffset + indexOffset);
+			file.write(&dataReference_[0], 290);
 		}
 	}
 }
 
-void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned char * data) {
-	loadData(patternIndex, 0, 0, data, 290);
+void SekvojRackSDPreset::getPatternData(unsigned char patternIndex) {
+	loadData(patternIndex, 0, 0, 290);
 }
 
-void SekvojRackSDPreset::setPatternData(unsigned char patternIndex, unsigned char * data) {
+void SekvojRackSDPreset::setPatternData(unsigned char patternIndex) {
 	file.seekSet(patternIndex * 512);
-	file.write(&data[0], 290);
+	file.write(&dataReference_[0], 290);
 }
 
 void SekvojRackSDPreset::loadData(unsigned char patternIndex,
 								  unsigned int sourceOffset,
 								  unsigned int targetOffset,
-								  unsigned char * data,
 								  unsigned int size) {
 	file.seekSet(patternIndex * 512 + sourceOffset);
-	file.read(&data[targetOffset], size);
+	file.read(&dataReference_[targetOffset], size);
 }
 
 void SekvojRackSDPreset::getSettingsData(unsigned char * data) {
