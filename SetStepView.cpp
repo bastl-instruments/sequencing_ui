@@ -162,6 +162,9 @@ void SetStepView::update() {
 	if (inSubStepMode_) {
 		subStepSwitches_.update();
 		DrumStep step = SekvojModulePool::memory_->getDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown);
+
+		// Bool to store information if any sub step is on after processing all sub steps in this cycle
+		bool anyOn = false;
 		for (unsigned char i = 0; i < 4; i++) {
 			bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
 			if (substepHasNote != subStepSwitches_.getStatus(i)) {
@@ -169,7 +172,14 @@ void SetStepView::update() {
 				step.setSubStep(i, substepHasNote ? DrumStep::OFF : currentVelocity_);
 				SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), !substepHasNote ? ILEDHW::ON : ILEDHW::OFF);
 				SekvojModulePool::memory_->setDrumStep(currentInstrumentIndex_, (currentPanIndex_ * 16) + currentButtonDown, step);
+				substepHasNote = !substepHasNote;
 			}
+			anyOn = anyOn || substepHasNote;
+		}
+		// Well there are no any sub steps set so step off shall not be ignored
+		// because there is nothing to play
+		if (!anyOn) {
+			drumStepView_->setIgnoreOffs(false);
 		}
 	} else {
 		panButtons_->update();
