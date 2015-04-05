@@ -38,5 +38,9 @@ class SekvojModulePool
         static StepSynchronizer * synchronizer_;
         static ITapper * tapper_;
 
+        static void setLED(unsigned char ledIndex, ILEDHW::LedState state) {
+        	hw_->setLED(ledIndex, state);
+        }
+
  };
 #endif /* SEKVOJMODULEPOOL_H_ */
