@@ -49,7 +49,7 @@ void SetActiveView::updateConfiguration() {
 		if (i != currentPanIndex_) {
 			newLEDState = anyActive[i] ? ILEDHW::DULLON : ILEDHW::OFF;
 		}
-		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), newLEDState);
+		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), newLEDState);
 	}
 
 	for (unsigned char i = 0; i < 6; i++) {
@@ -83,7 +83,7 @@ void SetActiveView::updateActives() {
 		if (!instrumentButtons_->getSelectedButton(instrument)) {
 			state = getLEDStateFromActiveMultiStatus(statuses[i]);
 		}
-		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getStepButtonIndex(i), state);
+		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getStepButtonIndex(i), state);
 		stepButtons_.setStatus(i, state == ILEDHW::ON);
 	}
 }

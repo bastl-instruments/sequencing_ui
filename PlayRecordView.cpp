@@ -34,7 +34,7 @@ void PlayRecordView::updateStatusItem(unsigned char step,
 
 	for (unsigned char stepIndex = 0; stepIndex < stepLength; stepIndex++) {
 		bool isOn = GETBIT(statuses, stepIndex) || (markCurrentStep && step == stepIndex);
-		SekvojModulePool::hw_->setLED(buttonsReference[stepIndex],isOn ? ILEDHW::ON :
+		SekvojModulePool::setLED(buttonsReference[stepIndex],isOn ? ILEDHW::ON :
 							   	   	   	   	   	       ILEDHW::OFF);
 	}
 }

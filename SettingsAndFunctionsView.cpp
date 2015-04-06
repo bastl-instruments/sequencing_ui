@@ -111,7 +111,7 @@ void SettingsAndFunctionsView::update() {
 			blinksToDo_--;
 		}
 		cyclesFromLastBlinkSwitch_ = cyclesFromLastBlinkSwitch_ % 100;
-		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
+		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
 		-				cyclesFromLastBlinkSwitch_ / 50 == 0 ? ILEDHW::OFF : ILEDHW::ON);
 	}
 
@@ -125,6 +125,8 @@ void SettingsAndFunctionsView::update() {
 	if (playModeSwitch_.getStatus(0) != settingsWasMaster) {
 		SekvojModulePool::settings_->setPlayerMode(settingsWasMaster ? PlayerSettings::SLAVE : PlayerSettings::MASTER);
 	}
+
+
 
 	//Quantization settings
 	unsigned char quantizationIndex = 0;
