@@ -76,9 +76,6 @@ void PatternView::update() {
 		if (newStatus != oldStatus) {
 			SekvojModulePool::settings_->setInstrumentOn(i, newStatus);
 			SekvojModulePool::instrumentBar_->setInstrumentSelected(i, newStatus);
-			if (newStatus && !SekvojModulePool::player_->isPlaying()) {
-				SekvojModulePool::player_->playNote(i, DrumStep::NORMAL);
-			}
 		}
 	}
 }

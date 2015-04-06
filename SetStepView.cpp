@@ -124,6 +124,9 @@ void SetStepView::update() {
 
 	unsigned char newInstrument = 0;
 	if (instrumentButtons_->getSelectedButton(newInstrument) && currentInstrumentIndex_ != newInstrument) {
+		if (!SekvojModulePool::player_->isPlaying()) {
+				SekvojModulePool::player_->playNote(newInstrument, DrumStep::NORMAL);
+		}
 		currentInstrumentIndex_ = newInstrument;
 		currentPanIndex_ = 0;
 		updateConfiguration();
