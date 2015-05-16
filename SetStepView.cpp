@@ -103,6 +103,9 @@ void SetStepView::updateCursor() {
 
 void SetStepView::update() {
 
+	unsigned char newInstrument = 0;
+	bool instrumentWasSelected = instrumentButtons_->getSelectedButton(newInstrument);
+
 	instrumentButtons_->update();
 	drumStepView_->update();
 	bool jumpButtonDown = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getJumpButtonIndex());
@@ -122,15 +125,23 @@ void SetStepView::update() {
 
 	//updateVelocity();
 
-	unsigned char newInstrument = 0;
-	if (instrumentButtons_->getSelectedButton(newInstrument) && currentInstrumentIndex_ != newInstrument) {
-		if (!SekvojModulePool::player_->isPlaying()) {
+	newInstrument = 0;
+	bool instrumentIsSelected = instrumentButtons_->getSelectedButton(newInstrument);
+
+	if (instrumentIsSelected) {
+		if (currentInstrumentIndex_ != newInstrument) {
+			if (!SekvojModulePool::player_->isPlaying()) {
 				SekvojModulePool::player_->playNote(newInstrument, DrumStep::NORMAL);
+			}
+			currentInstrumentIndex_ = newInstrument;
+			currentPanIndex_ = 0;
+			updateConfiguration();
+			return;
 		}
-		currentInstrumentIndex_ = newInstrument;
-		currentPanIndex_ = 0;
-		updateConfiguration();
-		return;
+	} else if (instrumentWasSelected) {
+		if (!SekvojModulePool::player_->isPlaying()) {
+			SekvojModulePool::player_->playNote(newInstrument, DrumStep::NORMAL);
+		}
 	}
 
 	unsigned char currentButtonDown = 0;
