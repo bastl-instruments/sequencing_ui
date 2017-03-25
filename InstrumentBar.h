@@ -18,14 +18,24 @@ public:
 	void setActive(bool isActive);
 	void setInstrumentSelected(unsigned char instrumentIndex, bool isSelected);
 	void setInstrumentPlaying(unsigned char instrumentIndex, bool isPlaying);
+	void setInstrumentsMutes(unsigned char instrumentsMutes);
 	void resetSelected();
 private:
 	ILEDHW * hw_;
 	IButtonMap * buttonMap_;
 	unsigned char instrumentCount_;
-	int currentSelectedStatuses_;
-	int currentPlayingStatuses_;
+	unsigned char instrumentsMutes_;
+	unsigned char currentSelectedStatuses_;
+	unsigned char currentPlayingStatuses_;
 	bool isActive_;
+
+	void updateView();
 };
+
+inline void InstrumentBar::setInstrumentsMutes(unsigned char instrumentsMutes) {
+	instrumentsMutes_ = instrumentsMutes;
+	if (isActive_) updateView();
+}
+
 
 #endif /* INSTRUMENTBAR_H_ */
