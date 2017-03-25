@@ -37,17 +37,19 @@ void SetActiveView::updateConfiguration() {
 	unsigned char instrument = 0;
 	bool instrumentSelected = instrumentButtons_->getSelectedButton(instrument);
 
-	bool anyActive[4];
+	unsigned char activeTillPan = (SekvojModulePool::memory_->getNumberOfActives(instrument) - 1) / 16;
 	if (instrumentSelected) {
-		SekvojModulePool::memory_->getActiveWindowBitArray(instrument, anyActive);
-	} else {
-		SekvojModulePool::memory_->getAllInstrumentsActiveWindowBitArray(anyActive);
+		for (unsigned char instrumentIndex = 0; instrumentIndex < 6; instrumentIndex++) {
+			unsigned char instrumentActive = (SekvojModulePool::memory_->getNumberOfActives(instrument) - 1) / 16;
+			if (instrumentActive > activeTillPan) {
+				activeTillPan = instrumentActive;
+			}
+		}
 	}
-
 	for (unsigned char i = 0; i < 4; i++) {
 		ILEDHW::LedState newLEDState = ILEDHW::ON;
 		if (i != currentPanIndex_) {
-			newLEDState = anyActive[i] ? ILEDHW::DULLON : ILEDHW::OFF;
+			newLEDState = (i <= activeTillPan) ? ILEDHW::DULLON : ILEDHW::OFF;
 		}
 		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), newLEDState);
 	}
@@ -70,16 +72,16 @@ ILEDHW::LedState SetActiveView::getLEDStateFromActiveMultiStatus(IStepMemory::Ac
 }
 
 void SetActiveView::updateActives() {
-	unsigned char instrument;
-	unsigned char * data;
 
-	SekvojModulePool::memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_,  data);
+	unsigned char numberOfActives = SekvojModulePool::memory_->getNumberOfActives(currentInstrumentIndex_);
 
 	IStepMemory::ActiveMultiStatus statuses[16];
 	SekvojModulePool::memory_->getAllInstrumentActivesFor16Steps(currentPanIndex_ * 16, statuses);
+	unsigned char panOffset = currentPanIndex_ * 16;
 
 	for (unsigned char i = 0; i < 16; i++) {
-		ILEDHW::LedState state = BitArrayOperations::getBit(data[i / 8], i % 8) ? ILEDHW::ON : ILEDHW::OFF;
+		ILEDHW::LedState state = ((panOffset + i) < numberOfActives) ? ILEDHW::ON : ILEDHW::OFF;
+		unsigned char instrument;
 		if (!instrumentButtons_->getSelectedButton(instrument)) {
 			state = getLEDStateFromActiveMultiStatus(statuses[i]);
 		}
@@ -149,17 +151,7 @@ void SetActiveView::update() {
 		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
 		if (stateChanged) {
 			//Update
-			if (shift) {
-				for (unsigned char instrument = 0; instrument < 6; instrument++) {
-					if (instrument == currentInstrumentIndex_ || !isInstrumentSelected) {
-						DrumStep step = SekvojModulePool::memory_->getDrumStep(instrument, pressedStep);
-						step.setActive(stepButtons_.getStatus(i));
-						SekvojModulePool::memory_->setDrumStep(instrument, pressedStep, step);
-					}
-				}
-			} else {
-				setActiveUpTo(pressedStep, isInstrumentSelected);
-			}
+			setActiveUpTo(pressedStep, isInstrumentSelected);
 			updateConfiguration();
 		}
 	}

@@ -65,8 +65,8 @@ void SetStepView::updateConfiguration() {
 
 void SetStepView::updateMutes() {
 	unsigned char * data;
-	SekvojModulePool::memory_->getActivesAndMutesForNote(currentInstrumentIndex_, currentPanIndex_, data);
-	currentStatuses_ = ~((((unsigned int)data[3]) << 8) | data[2]);
+	SekvojModulePool::memory_->getMutesForNote(currentInstrumentIndex_, currentPanIndex_, data);
+	currentStatuses_ = ~((((unsigned int)data[1]) << 8) | data[0]);
 	drumStepView_->setStatus(currentStatuses_);
 }
 
