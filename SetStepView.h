@@ -21,8 +21,6 @@
 
 class SetStepView : public IView {
 public:
-	SetStepView();
-	~SetStepView();
 	void init(unsigned char pattern, unsigned char instrumentCount,
 			  unsigned char initialInstrument /*, bool useVelocities*/, unsigned char selectedBar);
 	void update();
@@ -37,15 +35,14 @@ private:
 	unsigned char currentPattern_;
 	unsigned char currentPanIndex_;
 	unsigned char currentInstrumentIndex_;
-	DrumStep::DrumVelocityType currentVelocity_;
 
 	unsigned int currentStatuses_;
 
-	RadioButtons * panButtons_;
-	RadioButtons * instrumentButtons_;
+	RadioButtons panButtons_;
+	RadioButtons instrumentButtons_;
 	//RadioButtons * velocityRadio_;
 	Switches subStepSwitches_;
-	DrumStepsView * drumStepView_;
+	DrumStepsView drumStepView_;
 
 	bool inSubStepMode_;
 

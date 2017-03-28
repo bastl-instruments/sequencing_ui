@@ -47,35 +47,20 @@ unsigned char SettingsAndFunctionsView::copyPattern  = 0;
 unsigned char SettingsAndFunctionsView::copyInstrument = 0;
 unsigned char SettingsAndFunctionsView::copyBar = 0;
 
-SettingsAndFunctionsView::SettingsAndFunctionsView() :
-								 quantizationButtons_(0),
-								 multiplierButtons_(0),
-								 buttonStatuses_(0),
-								 selectedInstrument_(0),
-								 selectedBar_(0),
-								 blinksToDo_(0) {
-}
-
-SettingsAndFunctionsView::~SettingsAndFunctionsView() {
-	delete quantizationButtons_;
-	delete multiplierButtons_;
-	SekvojModulePool::instrumentBar_->setActive(true);
-}
-
-
 void SettingsAndFunctionsView::init(unsigned char selectedInstrument, unsigned char selectedBar) {
 	SekvojModulePool::instrumentBar_->setActive(false);
 	selectedInstrument_ = selectedInstrument;
 	selectedBar_ = selectedBar;
+	blinksToDo_ = 0;
 
-	quantizationButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	multiplierButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
+	quantizationButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	multiplierButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
 	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6, true);
 	playModeSwitch_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 2, 1, true);
 	bool isMaster = SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER;
 	playModeSwitch_.setStatus(0, isMaster);
-	quantizationButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
-	multiplierButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
+	quantizationButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
+	multiplierButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
 
 	for (unsigned char i = 0; i < 6; i++) {
 		bool isOn = SekvojModulePool::settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
@@ -116,8 +101,8 @@ void SettingsAndFunctionsView::update() {
 	}
 
 	instrumentButtons_.update();
-	quantizationButtons_->update();
-	multiplierButtons_->update();
+	quantizationButtons_.update();
+	multiplierButtons_.update();
 	playModeSwitch_.update();
 
 	//update player mode
@@ -130,18 +115,18 @@ void SettingsAndFunctionsView::update() {
 
 	//Quantization settings
 	unsigned char quantizationIndex = 0;
-	if (quantizationButtons_->getSelectedButton(quantizationIndex)) {
+	if (quantizationButtons_.getSelectedButton(quantizationIndex)) {
 		SekvojModulePool::settings_->setRecordQuantizationType((PlayerSettings::QuantizationType)(quantizationIndex));
 	} else {
-		quantizationButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
+		quantizationButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));
 	}
 
 	//Multiplication settings
 	unsigned char multiplierIndex = 0;
-	if (multiplierButtons_->getSelectedButton(multiplierIndex)) {
+	if (multiplierButtons_.getSelectedButton(multiplierIndex)) {
 		SekvojModulePool::settings_->setMultiplication((PlayerSettings::MultiplicationType)(multiplierIndex));
 	} else {
-		multiplierButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
+		multiplierButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
 	}
 
 	// Update playing instruments settings

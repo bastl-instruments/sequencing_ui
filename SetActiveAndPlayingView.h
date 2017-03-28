@@ -41,7 +41,7 @@ private:
 
 	unsigned int currentStatuses_;
 
-	RadioButtons * panButtons_;
+	RadioButtons panButtons_;
 	Switches instrumentButtons_;
 
 };

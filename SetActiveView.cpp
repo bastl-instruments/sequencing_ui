@@ -9,25 +9,13 @@
 #include <BitArrayOperations.h>
 #include "SekvojModulePool.h"
 
-SetActiveView::SetActiveView() : currentPanIndex_(0),
-								 currentInstrumentIndex_(0),
-								 currentStatuses_(0),
-								 panButtons_(0),
-								 instrumentButtons_(0){
-}
-
-SetActiveView::~SetActiveView() {
-	delete panButtons_;
-	delete instrumentButtons_;
-}
-
 void SetActiveView::init(unsigned char currentInstrumentIndex, unsigned char currentPanIndex) {
 
 	currentInstrumentIndex_ = currentInstrumentIndex;
 	currentPanIndex_ = currentPanIndex;
-	panButtons_ = new RadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_ = new RadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
-	instrumentButtons_->setSelectedButton(currentInstrumentIndex);
+	panButtons_ .init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
+	instrumentButtons_.setSelectedButton(currentInstrumentIndex);
 	stepButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
 	updateConfiguration();
 }
@@ -35,7 +23,7 @@ void SetActiveView::init(unsigned char currentInstrumentIndex, unsigned char cur
 void SetActiveView::updateConfiguration() {
 
 	unsigned char instrument = 0;
-	bool instrumentSelected = instrumentButtons_->getSelectedButton(instrument);
+	bool instrumentSelected = instrumentButtons_.getSelectedButton(instrument);
 
 	unsigned char activeTillPan = (SekvojModulePool::memory_->getNumberOfActives(instrument) - 1) / 16;
 	if (instrumentSelected) {
@@ -82,7 +70,7 @@ void SetActiveView::updateActives() {
 	for (unsigned char i = 0; i < 16; i++) {
 		ILEDHW::LedState state = ((panOffset + i) < numberOfActives) ? ILEDHW::ON : ILEDHW::OFF;
 		unsigned char instrument;
-		if (!instrumentButtons_->getSelectedButton(instrument)) {
+		if (!instrumentButtons_.getSelectedButton(instrument)) {
 			state = getLEDStateFromActiveMultiStatus(statuses[i]);
 		}
 		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getStepButtonIndex(i), state);
@@ -103,18 +91,18 @@ void SetActiveView::setActiveUpTo(unsigned char stepTo, bool instrumentSelected)
 void SetActiveView::update() {
 
 	unsigned char newInstrument = 0;
-	bool wasInstrumentSelected = instrumentButtons_->getSelectedButton(newInstrument);
+	bool wasInstrumentSelected = instrumentButtons_.getSelectedButton(newInstrument);
 
-	panButtons_->update();
-	instrumentButtons_->update();
+	panButtons_.update();
+	instrumentButtons_.update();
 	stepButtons_.update();
 
-	bool isInstrumentSelected = instrumentButtons_->getSelectedButton(newInstrument);
+	bool isInstrumentSelected = instrumentButtons_.getSelectedButton(newInstrument);
 	if ((isInstrumentSelected != wasInstrumentSelected) ||
 	    (isInstrumentSelected && (currentInstrumentIndex_ != newInstrument))) {
 		currentInstrumentIndex_ = isInstrumentSelected ? newInstrument : currentInstrumentIndex_;
 		currentPanIndex_ = 0;
-		panButtons_->setSelectedButton(0);
+		panButtons_.setSelectedButton(0);
 		updateConfiguration();
 		return;
 	}
@@ -131,10 +119,10 @@ void SetActiveView::update() {
 			}
 		}
 		//Change back selected pan since in shift mode changes are not allowed
-		panButtons_->setSelectedButton(currentPanIndex_);
+		panButtons_.setSelectedButton(currentPanIndex_);
 	} else {
 		unsigned char newPan = 0;
-		if (panButtons_->getSelectedButton(newPan) && currentPanIndex_ != newPan) {
+		if (panButtons_.getSelectedButton(newPan) && currentPanIndex_ != newPan) {
 			currentPanIndex_ = newPan;
 			updateConfiguration();
 			return;

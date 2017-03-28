@@ -22,14 +22,12 @@
 
 class SettingsAndFunctionsView : public IView {
 public:
-	SettingsAndFunctionsView();
-	~SettingsAndFunctionsView();
 	void init(unsigned char selectedInstrument, unsigned char selectedBar);
 	void update();
 private:
 
-	LEDRadioButtons * quantizationButtons_;
-	LEDRadioButtons * multiplierButtons_;
+	LEDRadioButtons quantizationButtons_;
+	LEDRadioButtons multiplierButtons_;
 
 	Switches instrumentButtons_;
 

@@ -8,22 +8,6 @@
 #include "SetActiveAndPlayingView.h"
 #include <BitArrayOperations.h>
 
-SetActiveAndPlayingView::SetActiveAndPlayingView() : hw_(0),
-								 memory_(0),
-								 player_(0),
-								 settings_(0),
-								 instrumentBar_(0),
-								 buttonMap_(0),
-								 currentPattern_(0),
-								 currentPanIndex_(0),
-								 currentInstrumentIndex_(0),
-								 currentStatuses_(0),
-								 panButtons_(0){
-}
-
-SetActiveAndPlayingView::~SetActiveAndPlayingView() {
-	delete panButtons_;
-}
 
 void SetActiveAndPlayingView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory, Player * player, PlayerSettings * settings,
 						 InstrumentBar * instrumentBar, IButtonMap * buttonMap, unsigned char selectedInstrument) {
@@ -34,7 +18,7 @@ void SetActiveAndPlayingView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory,
 	currentInstrumentIndex_ = selectedInstrument;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
-	panButtons_ = new RadioButtons(hw_, buttonMap_->getSubStepButtonArray(), 4);
+	panButtons_.init(hw_, buttonMap_->getSubStepButtonArray(), 4);
 	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
 	updateConfiguration();
 }
@@ -63,7 +47,7 @@ void SetActiveAndPlayingView::updateActives() {
 
 void SetActiveAndPlayingView::update() {
 
-	panButtons_->update();
+	panButtons_.update();
 	instrumentButtons_.update();
 
 	// Update playing instruments settings
@@ -77,7 +61,7 @@ void SetActiveAndPlayingView::update() {
 	}
 
 	unsigned char newPan = 0;
-	if (panButtons_->getSelectedButton(newPan) && currentPanIndex_ != newPan) {
+	if (panButtons_.getSelectedButton(newPan) && currentPanIndex_ != newPan) {
 		currentPanIndex_ = newPan;
 		updateConfiguration();
 		return;
@@ -85,7 +69,6 @@ void SetActiveAndPlayingView::update() {
 	for (unsigned char i = 0; i < 16; i++) {
 		bool lastState = GETBIT(currentStatuses_, i);
 		bool currentState = hw_->getButtonState(buttonMap_->getStepButtonIndex(i));
-		bool shift = false;
 		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
 		if (lastState != currentState) {
 			//Update

@@ -20,8 +20,6 @@
 
 class SetActiveView : public IView {
 public:
-	SetActiveView();
-	~SetActiveView();
 	void init(unsigned char currentInstrumentIndex = 0, unsigned char currentPanIndex = 0);
 	void update();
 	unsigned char getSelectedInstrumentIndex();
@@ -33,8 +31,8 @@ private:
 
 	unsigned int currentStatuses_;
 
-	RadioButtons * panButtons_;
-	RadioButtons * instrumentButtons_;
+	RadioButtons panButtons_;
+	RadioButtons instrumentButtons_;
 	Switches stepButtons_;
 
 	void updateActives();

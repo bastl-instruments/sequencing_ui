@@ -20,16 +20,14 @@
 
 class PatternView  : public IView {
 public:
-	PatternView();
-	~PatternView();
 	void init();
 	virtual void update();
 private:
 
 	//Controls
 	Switches instrumentSwitches_;
-	LEDRadioButtons * patternSelectRadioButtons_;
-	LEDRadioButtons * panSelectRadioButtons_;
+	LEDRadioButtons patternSelectRadioButtons_;
+	LEDRadioButtons panSelectRadioButtons_;
 	unsigned char currentPattern_;
 	unsigned char currentPan_;
 

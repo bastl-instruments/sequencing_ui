@@ -9,29 +9,24 @@
 #include <BitArrayOperations.h>
 #include "SekvojModulePool.h"
 
-FunctionViewExtra::FunctionViewExtra() {
-	triggerButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray() + 1, 3);
+void FunctionViewExtra::init() {
+	triggerButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray() + 1, 3);
 	//swingButtons_ = new LEDRadioButtons(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
-	triggerButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getTriggerLength()));
+	triggerButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getTriggerLength()));
 	//swingButtons_->setSelectedButton((char)(SekvojModulePool::settings_->getMultiplication()));
-}
-
-FunctionViewExtra::~FunctionViewExtra() {
-	delete triggerButtons_;
-	//delete swingButtons_;
 }
 
 void FunctionViewExtra::update() {
 
-	triggerButtons_->update();
+	triggerButtons_.update();
 	//swingButtons_->update();
 
 	//Quantization settings
 	unsigned char triggerLengthIndex = 0;
-	if (triggerButtons_->getSelectedButton(triggerLengthIndex)) {
+	if (triggerButtons_.getSelectedButton(triggerLengthIndex)) {
 		SekvojModulePool::settings_->setTriggerLength(triggerLengthIndex);
 	} else {
-		triggerButtons_->setSelectedButton(SekvojModulePool::settings_->getTriggerLength());
+		triggerButtons_.setSelectedButton(SekvojModulePool::settings_->getTriggerLength());
 	}
 
 	//Quantization settings

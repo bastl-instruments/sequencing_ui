@@ -18,12 +18,11 @@
 
 class FunctionViewExtra : public IView {
 public:
-	FunctionViewExtra();
-	~FunctionViewExtra();
+	void init();
 	void update();
 private:
-	LEDRadioButtons * triggerButtons_;
-	LEDRadioButtons * swingButtons_;
+	LEDRadioButtons triggerButtons_;
+	LEDRadioButtons swingButtons_;
 };
 
 #endif /* FUNCTIONVIEWEXTRA_H_ */
