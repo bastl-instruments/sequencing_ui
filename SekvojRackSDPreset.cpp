@@ -31,8 +31,8 @@ void SekvojRackSDPreset::initCard(unsigned char * data, unsigned char * settings
 		} else {
 			for (int j = 0; j < 128; j++) {
 				file.write(&data[0],290);
-				file.write(&settingsData[0], 8);
-				file.write(&data[0],214);
+				file.write(&settingsData[0], 11);
+				file.write(&data[0],211);
 			}
 		}
 		file.close();
@@ -73,16 +73,16 @@ void SekvojRackSDPreset::loadData(unsigned char patternIndex,
 
 void SekvojRackSDPreset::getSettingsData(unsigned char * data) {
 	file.seekSet(290);
-	file.read(&data[0], 8);
+	file.read(&data[0], 11);
 }
 
 void SekvojRackSDPreset::setSettingsData(unsigned char * data) {
 	file.seekSet(290);
-	file.write(&data[0], 8);
+	file.write(&data[0], 11);
 	file.seekSet(OFFSET + 290);
-	file.write(&data[0], 8);
+	file.write(&data[0], 11);
 	file.seekSet(802);
-	file.read(&data[0], 8);
+	file.read(&data[0], 11);
 
 }
 
