@@ -10,7 +10,7 @@
 #include "SekvojModulePool.h"
 
 void FunctionViewExtra::init() {
-	triggerButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray() + 1, 3);
+	triggerButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
 	swingButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 8);
 	triggerButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getTriggerLength()));
 	swingButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getSwing()));
