@@ -15,12 +15,10 @@ public:
 	virtual unsigned char getInstrumentButtonIndex(unsigned char index) = 0;
 	virtual unsigned char getStepButtonIndex(unsigned char index) = 0;
 	virtual unsigned char getSubStepButtonIndex(unsigned char index) = 0;
-	virtual unsigned char getVelocityButtonIndex(unsigned char index) = 0;
 	virtual unsigned char * getMainMenuButtonArray() = 0;
 	virtual unsigned char * getInstrumentButtonArray() = 0;
 	virtual unsigned char * getStepButtonArray() = 0;
 	virtual unsigned char * getSubStepButtonArray() = 0;
-	virtual unsigned char * getVelocityButtonArray() = 0;
 
 	virtual unsigned char getPlayButtonIndex() = 0;
 	virtual unsigned char getRecordButtonIndex() = 0;
