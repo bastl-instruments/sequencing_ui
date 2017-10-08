@@ -203,6 +203,20 @@ void SetStepView::update() {
 			if (changeToOn || changeToOff) {
 				unsigned char currentStepIndex = (currentPanIndex_ * 16) + i;
 				DrumStep step = SekvojModulePool::memory_->getDrumStep(currentInstrumentIndex_, currentStepIndex);
+				if (changeToOn) {
+					bool anyOn = false;
+					for (unsigned char i = 0; i < 4; i++) {
+						bool substepHasNote = step.getSubStep(i) != DrumStep::OFF;
+						anyOn = anyOn || substepHasNote;
+					}
+					if (!anyOn) {
+						for (unsigned char subStep = 0; subStep < 4; subStep++) {
+							if (subStep == 0 || SekvojModulePool::settings_->getDrumInstrumentEventType(currentInstrumentIndex_) == PlayerSettings::GATE) {
+								step.setSubStep(subStep, DrumStep::NORMAL);
+							}
+						}
+					}
+				}
 				step.setMuted(changeToOff);
 				SekvojModulePool::memory_->setDrumStep(currentInstrumentIndex_, currentStepIndex, step);
 			}
