@@ -51,9 +51,11 @@ inline void DrumStepsView::setIgnoreOffs(bool ignoreOffs) {
 }
 
 inline void DrumStepsView::setIgnoreAll(bool ignoreAll) {
-	ignoreAll_ = ignoreAll;
-	if (!ignoreAll_) {
-		stepSwitches_.computeIgnoreButton();
+	if (ignoreAll_ != ignoreAll) {
+		ignoreAll_ = ignoreAll;
+		if (!ignoreAll_) {
+			stepSwitches_.computeIgnoreButton();
+		}
 	}
 }
 
