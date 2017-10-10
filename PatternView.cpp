@@ -13,10 +13,10 @@ void PatternView::init() {
 	currentPattern_ = SekvojModulePool::settings_->getCurrentPattern();
 	currentPan_ = currentPattern_ / 16;
 
-	instrumentSwitches_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
+	instrumentSwitches_.init(SekvojModulePool::buttonMap_getInstrumentButtonArray(), 6);
 	patternSelectRadioButtons_.init(SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
 	patternSelectRadioButtons_.setSelectedButton(currentPattern_ % 16);
-	panSelectRadioButtons_.init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	panSelectRadioButtons_.init(SekvojModulePool::buttonMap_getSubStepButtonArray(), 4);
 	panSelectRadioButtons_.setSelectedButton(currentPan_);
 
 	//Present instrument settings

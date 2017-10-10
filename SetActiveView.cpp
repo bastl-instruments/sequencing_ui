@@ -13,8 +13,8 @@ void SetActiveView::init(unsigned char currentInstrumentIndex, unsigned char cur
 
 	currentInstrumentIndex_ = currentInstrumentIndex;
 	currentPanIndex_ = currentPanIndex;
-	panButtons_ .init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
+	panButtons_ .init(SekvojModulePool::buttonMap_getSubStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::buttonMap_getInstrumentButtonArray(), 6);
 	instrumentButtons_.setSelectedButton(currentInstrumentIndex);
 	stepButtons_.init(SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
 	updateConfiguration();
@@ -39,7 +39,7 @@ void SetActiveView::updateConfiguration() {
 		if (i != currentPanIndex_) {
 			newLEDState = (i <= activeTillPan) ? ILEDHW::DULLON : ILEDHW::OFF;
 		}
-		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getSubStepButtonIndex(i), newLEDState);
+		LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_getSubStepButtonIndex(i), newLEDState);
 	}
 
 	for (unsigned char i = 0; i < 6; i++) {
@@ -73,7 +73,7 @@ void SetActiveView::updateActives() {
 		if (!instrumentButtons_.getSelectedButton(instrument)) {
 			state = getLEDStateFromActiveMultiStatus(statuses[i]);
 		}
-		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getStepButtonIndex(i), state);
+		LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_->getStepButtonIndex(i), state);
 		stepButtons_.setStatus(i, state == ILEDHW::ON);
 	}
 }
@@ -106,13 +106,13 @@ void SetActiveView::update() {
 		updateConfiguration();
 		return;
 	}
-	bool shift = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
+	bool shift = LEDsAndButtonsHWWrapper::isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
 	if (shift) {
 
 		//We take the highest currently pressed pan
 		//to increase number of active steps up to that pan
 		for (unsigned char pan = 0; pan < 4; pan++) {
-			if (SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getSubStepButtonIndex(pan))) {
+			if (LEDsAndButtonsHWWrapper::isButtonDown(SekvojModulePool::buttonMap_getSubStepButtonIndex(pan))) {
 				setActiveUpTo(((pan + 1) * 16) - 1, isInstrumentSelected);
 				updateConfiguration();
 				break;
@@ -132,7 +132,7 @@ void SetActiveView::update() {
 
 		// Check whether the status of the step button has been changed
 		bool lastState = GETBIT(currentStatuses_, i);
-		bool newState = SekvojModulePool::hw_->getButtonState(SekvojModulePool::buttonMap_->getStepButtonIndex(i));
+		bool newState = LEDsAndButtonsHWWrapper::hw_->getButtonState(SekvojModulePool::buttonMap_->getStepButtonIndex(i));
 		bool stateChanged =  newState != lastState;
 		SETBIT(currentStatuses_, i, newState);
 

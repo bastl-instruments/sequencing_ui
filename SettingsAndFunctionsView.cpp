@@ -53,9 +53,9 @@ void SettingsAndFunctionsView::init(unsigned char selectedInstrument, unsigned c
 	selectedBar_ = selectedBar;
 	blinksToDo_ = 0;
 
-	quantizationButtons_.init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	quantizationButtons_.init(SekvojModulePool::buttonMap_getSubStepButtonArray(), 4);
 	multiplierButtons_.init(SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
-	instrumentButtons_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6, true);
+	instrumentButtons_.init(SekvojModulePool::buttonMap_getInstrumentButtonArray(), 6, true);
 	playModeSwitch_.init(SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 2, 1, true);
 	bool isMaster = SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER;
 	playModeSwitch_.setStatus(0, isMaster);
@@ -78,7 +78,7 @@ void SettingsAndFunctionsView::paste(unsigned char fromInstrument,
 
 	if (copyDefined) {
 		if (copyPattern != SekvojModulePool::settings_->getCurrentPattern()) {
-			SekvojModulePool::sd_->loadData(copyPattern, fromMemoryIndex, toMemoryIndex, size);
+			SekvojModulePool::sd_.loadData(copyPattern, fromMemoryIndex, toMemoryIndex, size);
 		} else {
 			unsigned char * data = SekvojModulePool::memory_->getDataReference();
 			for (unsigned int i = 0; i < size; i++) {
@@ -96,7 +96,7 @@ void SettingsAndFunctionsView::update() {
 			blinksToDo_--;
 		}
 		cyclesFromLastBlinkSwitch_ = cyclesFromLastBlinkSwitch_ % 100;
-		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
+		LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_->getRecordButtonIndex(),
 		-				cyclesFromLastBlinkSwitch_ / 50 == 0 ? ILEDHW::OFF : ILEDHW::ON);
 	}
 
@@ -144,27 +144,27 @@ void SettingsAndFunctionsView::update() {
 		bool buttonWasDown = GETBIT(buttonStatuses_, button);
 		unsigned char buttonIndex = (button == 3) ? SekvojModulePool::buttonMap_->getRecordButtonIndex() :
 													SekvojModulePool::buttonMap_->getStepButtonIndex(button);
-		bool buttonIsDown = SekvojModulePool::hw_->isButtonDown(buttonIndex);
+		bool buttonIsDown = LEDsAndButtonsHWWrapper::isButtonDown(buttonIndex);
 		if (!buttonWasDown && buttonIsDown)  {
 			unsigned int currentBPM = SekvojModulePool::settings_->getBPM();
 			switch (button) {
 				case SAVE_NOT_IN_ORDER:
-					SekvojModulePool::sd_->setPatternData(SekvojModulePool::settings_->getCurrentPattern());
-					SekvojModulePool::sd_->save(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
-					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern());
+					SekvojModulePool::sd_.setPatternData(SekvojModulePool::settings_->getCurrentPattern());
+					SekvojModulePool::sd_.save(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
+					SekvojModulePool::sd_.getPatternData(SekvojModulePool::settings_->getCurrentPattern());
 					SekvojModulePool::settings_->resetManipulatedPatterns();
 					blinksToDo_ = 2;
 				break;
 				case TEMPO_DOWN:
 					if (currentBPM > 0) {
-						SekvojModulePool::settings_->setBPM(currentBPM - 2);
+						SekvojModulePool::settings_->setBPM(currentBPM - 1);
 					}
 					break;
 				case TEMPO_UP:
-					SekvojModulePool::settings_->setBPM(currentBPM + 2);
+					SekvojModulePool::settings_->setBPM(currentBPM + 1);
 					break;
 				case TAP_TEMPO:
-					SekvojModulePool::tapper_->tap(SekvojModulePool::hw_->getElapsedBastlCycles());
+					SekvojModulePool::tapper_->tap(LEDsAndButtonsHWWrapper::hw_->getElapsedBastlCycles());
 					break;
 				case COPY:
 					copyPattern = SekvojModulePool::settings_->getCurrentPattern();
@@ -182,8 +182,8 @@ void SettingsAndFunctionsView::update() {
 					paste(0, 0, 0, 0, 290);
 					break;
 				case UNDO:
-					SekvojModulePool::sd_->discard(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
-					SekvojModulePool::sd_->getPatternData(SekvojModulePool::settings_->getCurrentPattern());
+					SekvojModulePool::sd_.discard(SekvojModulePool::settings_->getManipulatedPatternsBitArray());
+					SekvojModulePool::sd_.getPatternData(SekvojModulePool::settings_->getCurrentPattern());
 					SekvojModulePool::settings_->resetManipulatedPatterns();
 					break;
 				case CLEAR_STEPS_FOR_INSTRUMENT:		// put everything to default including actives
