@@ -8,7 +8,6 @@
 #include "DrumStepsView.h"
 
 DrumStepsView::DrumStepsView() :
-	hw_(0),
 	buttonMap_(0),
 	currentStatus_(0),
 	lastStatus_(0),
@@ -21,10 +20,9 @@ DrumStepsView::DrumStepsView() :
 DrumStepsView::~DrumStepsView() {
 }
 
-	void DrumStepsView::init (ILEDsAndButtonsHW * hw, IButtonMap * buttonMap) {
-		hw_ = hw;
+	void DrumStepsView::init (IButtonMap * buttonMap) {
 		buttonMap_ = buttonMap;
-		stepSwitches_.init(hw_, buttonMap_->getStepButtonArray(), 16, false, IButtonHW::UP);
+		stepSwitches_.init(buttonMap_->getStepButtonArray(), 16, false, IButtonHW::UP);
 	}
 
 	void DrumStepsView::update() {
@@ -32,7 +30,7 @@ DrumStepsView::~DrumStepsView() {
 		stepSwitches_.update();
 		currentDownButton_ = -1;
 		for (unsigned char i = 0; i < 16; i++) {
-			if (hw_->isButtonDown(buttonMap_->getStepButtonIndex(i))) {
+			if (LEDsAndButtonsHWWrapper::isButtonDown(buttonMap_->getStepButtonIndex(i))) {
 				currentDownButton_ = i;
 			}
 
@@ -43,14 +41,14 @@ DrumStepsView::~DrumStepsView() {
 					if (ignoreAll_) {
 						stepSwitches_.setStatus(i, false);
 					} else {
-						hw_->setLED(buttonMap_->getStepButtonIndex(i), (i == highlightedButton_) ? ILEDHW::ON : ILEDHW::DULLON);
+						LEDsAndButtonsHWWrapper::setLED(buttonMap_->getStepButtonIndex(i), (i == highlightedButton_) ? ILEDHW::ON : ILEDHW::DULLON);
 						currentStatus_ = currentStatus_ | (1 << i);
 					}
 				} else {
 					if (ignoreOffs_ || ignoreAll_) {
 						stepSwitches_.setStatus(i, true);
 					} else {
-						hw_->setLED(buttonMap_->getStepButtonIndex(i), ILEDHW::OFF);
+						LEDsAndButtonsHWWrapper::setLED(buttonMap_->getStepButtonIndex(i), ILEDHW::OFF);
 						currentStatus_ = currentStatus_ & ~(1 << i);
 					}
 				}
@@ -64,7 +62,7 @@ DrumStepsView::~DrumStepsView() {
 		for (unsigned char i = 0; i < 16; i++) {
 			bool stepValue = (currentStatus_ & (1 << i)) != 0;
 			stepSwitches_.setStatus(i, stepValue);
-			hw_->setLED(buttonMap_->getStepButtonIndex(i), stepValue ? ILEDHW::DULLON: ILEDHW::OFF);
+			LEDsAndButtonsHWWrapper::setLED(buttonMap_->getStepButtonIndex(i), stepValue ? ILEDHW::DULLON: ILEDHW::OFF);
 		}
 	}
 
@@ -80,11 +78,11 @@ DrumStepsView::~DrumStepsView() {
 		if (highlightedButton_ != index) {
 			if (highlightedButton_ != -1) {
 				bool stepValue = ((currentStatus_ & (1 << highlightedButton_)) != 0);
-				hw_->setLED(buttonMap_->getStepButtonIndex((unsigned char)highlightedButton_), stepValue ? ILEDHW::DULLON : ILEDHW::OFF);
+				LEDsAndButtonsHWWrapper::setLED(buttonMap_->getStepButtonIndex((unsigned char)highlightedButton_), stepValue ? ILEDHW::DULLON : ILEDHW::OFF);
 			}
 			highlightedButton_ = index;
 			if (highlightedButton_ != -1) {
-				hw_->setLED(buttonMap_->getStepButtonIndex((unsigned char)highlightedButton_), ILEDHW::ON);
+				LEDsAndButtonsHWWrapper::setLED(buttonMap_->getStepButtonIndex((unsigned char)highlightedButton_), ILEDHW::ON);
 			}
 		}
 	}

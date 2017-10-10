@@ -53,10 +53,10 @@ void SettingsAndFunctionsView::init(unsigned char selectedInstrument, unsigned c
 	selectedBar_ = selectedBar;
 	blinksToDo_ = 0;
 
-	quantizationButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	multiplierButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
-	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6, true);
-	playModeSwitch_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 2, 1, true);
+	quantizationButtons_.init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	multiplierButtons_.init(SekvojModulePool::buttonMap_->getStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6, true);
+	playModeSwitch_.init(SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 2, 1, true);
 	bool isMaster = SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER;
 	playModeSwitch_.setStatus(0, isMaster);
 	quantizationButtons_.setSelectedButton((char)(SekvojModulePool::settings_->getRecordQuantizationType()));

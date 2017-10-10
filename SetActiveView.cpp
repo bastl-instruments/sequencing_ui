@@ -13,10 +13,10 @@ void SetActiveView::init(unsigned char currentInstrumentIndex, unsigned char cur
 
 	currentInstrumentIndex_ = currentInstrumentIndex;
 	currentPanIndex_ = currentPanIndex;
-	panButtons_ .init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
+	panButtons_ .init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), 6);
 	instrumentButtons_.setSelectedButton(currentInstrumentIndex);
-	stepButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
+	stepButtons_.init(SekvojModulePool::buttonMap_->getStepButtonArray(), 16);
 	updateConfiguration();
 }
 

@@ -19,14 +19,14 @@ void SetStepView::init(unsigned char pattern, unsigned char instrumentCount, uns
 	instrumentCount_ = instrumentCount;
 	//useVelocities_ = useVelocities;
 	currentInstrumentIndex_ = initialInstrument;
-	panButtons_ .init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	panButtons_ .init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
 	panButtons_.setSelectedButton(currentPanIndex_);
-	subStepSwitches_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_->getInstrumentButtonArray(), instrumentCount_);
+	subStepSwitches_.init(SekvojModulePool::buttonMap_->getSubStepButtonArray(), 4);
+	instrumentButtons_.init(SekvojModulePool::buttonMap_->getInstrumentButtonArray(), instrumentCount_);
 	//if (useVelocities_) {
 	//	velocityRadio_ = new RadioButtons(hw_, buttonMap_->getVelocityButtonArray(), 2);
 	//}
-	drumStepView_.init(SekvojModulePool::hw_, SekvojModulePool::buttonMap_);
+	drumStepView_.init(SekvojModulePool::buttonMap_);
 	updateConfiguration();
 }
 

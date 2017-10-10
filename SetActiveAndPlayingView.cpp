@@ -18,8 +18,8 @@ void SetActiveAndPlayingView::init(ILEDsAndButtonsHW * hw, IStepMemory * memory,
 	currentInstrumentIndex_ = selectedInstrument;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
-	panButtons_.init(hw_, buttonMap_->getSubStepButtonArray(), 4);
-	instrumentButtons_.init(hw_, buttonMap_->getInstrumentButtonArray(), 6);
+	panButtons_.init(buttonMap_->getSubStepButtonArray(), 4);
+	instrumentButtons_.init(buttonMap_->getInstrumentButtonArray(), 6);
 	updateConfiguration();
 }
 
