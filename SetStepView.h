@@ -37,6 +37,7 @@ private:
 	unsigned char currentInstrumentIndex_;
 
 	unsigned int currentStatuses_;
+	unsigned char buttonStatuses_;
 
 	RadioButtons panButtons_;
 	RadioButtons instrumentButtons_;

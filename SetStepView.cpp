@@ -28,6 +28,7 @@ void SetStepView::init(unsigned char pattern, unsigned char instrumentCount, uns
 	//}
 	drumStepView_.init(SekvojModulePool::buttonMap_);
 	updateConfiguration();
+	buttonStatuses_ = 0;
 }
 
 void SetStepView::updateConfiguration() {
@@ -106,14 +107,23 @@ void SetStepView::update() {
 	unsigned char oldInstrument = currentInstrumentIndex_;
 	bool instrumentIsSelected = instrumentButtons_.getSelectedButton(newInstrument);
 
+	if (!SekvojModulePool::player_->isPlaying()) {
+		for (unsigned char i = 0; i < 6; i++) {
+			bool wasButtonDown = BitArrayOperations::getBit(buttonStatuses_,i);
+			bool isButtonDown = LEDsAndButtonsHWWrapper::isButtonDown(SekvojModulePool::buttonMap_->getInstrumentButtonIndex(i));
+			bool isInstrumentGay = SekvojModulePool::settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
+			if (isButtonDown && (!wasButtonDown || isInstrumentGay)) {
+				SekvojModulePool::player_->playNote(i, DrumStep::NORMAL, false);
+			}
+			BitArrayOperations::setBit(buttonStatuses_, i, isButtonDown);
+		}
+	}
+
 	if (instrumentIsSelected) {
 		if (currentInstrumentIndex_ != newInstrument) {
 			currentInstrumentIndex_ = newInstrument;
 			currentPanIndex_ = 0;
 			updateConfiguration();
-			if (!SekvojModulePool::player_->isPlaying()) {
-				SekvojModulePool::player_->playNote(currentInstrumentIndex_, DrumStep::NORMAL);
-			}
 			return;
 		}
 	}
