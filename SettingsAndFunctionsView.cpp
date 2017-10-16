@@ -202,7 +202,7 @@ void SettingsAndFunctionsView::update() {
 					break;
 			}
 		}
-		SETBIT(buttonStatuses_, button, buttonIsDown);
+		setBit(buttonStatuses_, button, buttonIsDown);
 
 	}
 }

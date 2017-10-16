@@ -109,13 +109,13 @@ void SetStepView::update() {
 
 	if (!SekvojModulePool::player_->isPlaying()) {
 		for (unsigned char i = 0; i < 6; i++) {
-			bool wasButtonDown = BitArrayOperations::getBit(buttonStatuses_,i);
+			bool wasButtonDown = getBit(buttonStatuses_,i);
 			bool isButtonDown = LEDsAndButtonsHWWrapper::isButtonDown(SekvojModulePool::buttonMap_->getInstrumentButtonIndex(i));
 			bool isInstrumentGay = SekvojModulePool::settings_->getDrumInstrumentEventType(i) == PlayerSettings::GATE;
 			if (isButtonDown && (!wasButtonDown || isInstrumentGay)) {
 				SekvojModulePool::player_->playNote(i, DrumStep::NORMAL, false);
 			}
-			BitArrayOperations::setBit(buttonStatuses_, i, isButtonDown);
+			setBit(buttonStatuses_, i, isButtonDown);
 		}
 	}
 

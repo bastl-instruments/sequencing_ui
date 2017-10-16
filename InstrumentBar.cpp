@@ -24,7 +24,7 @@ void InstrumentBar::setActive(bool isActive) {
 }
 
 void InstrumentBar::setInstrumentSelected(unsigned char instrumentIndex, bool isSelected) {
-	SETBIT(currentSelectedStatuses_, instrumentIndex, isSelected);
+	setBit(currentSelectedStatuses_, instrumentIndex, isSelected);
 	if (isActive_ ) {
 		updateView();
 	}
@@ -45,7 +45,7 @@ void InstrumentBar::updateView() {
 }
 
 void InstrumentBar::setInstrumentPlaying(unsigned char instrumentIndex, bool isPlaying) {
-	SETBIT(currentPlayingStatuses_, instrumentIndex, isPlaying);
+	setBit(currentPlayingStatuses_, instrumentIndex, isPlaying);
 	if (isActive_) {
 		updateView();
 	}

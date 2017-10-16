@@ -134,7 +134,7 @@ void SetActiveView::update() {
 		bool lastState = GETBIT(currentStatuses_, i);
 		bool newState = LEDsAndButtonsHWWrapper::hw_->getButtonState(SekvojModulePool::buttonMap_->getStepButtonIndex(i));
 		bool stateChanged =  newState != lastState;
-		SETBIT(currentStatuses_, i, newState);
+		setBit(currentStatuses_, i, newState);
 
 		unsigned char pressedStep = (currentPanIndex_ * 16) + i;
 		if (stateChanged) {
