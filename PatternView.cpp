@@ -25,6 +25,7 @@ void PatternView::init() {
 		SekvojModulePool::instrumentBar_->setInstrumentSelected(i, instrumentStatus);
 		instrumentSwitches_.setStatus(i, instrumentStatus);
 	}
+	actionDone_ = false;
 }
 
 void PatternView::updatePan() {
@@ -35,6 +36,7 @@ void PatternView::updatePan() {
 			patternSelectRadioButtons_.resetSelection();
 		}
 		currentPan_ = newPan;
+		actionDone_ = true;
 		if (currentPattern_ / 16 == currentPan_) {
 			patternSelectRadioButtons_.setSelectedButton(currentPattern_ % 16);
 		}
@@ -56,12 +58,14 @@ void PatternView::update() {
 	if (somethingSelected && (newPattern != currentPattern_)) {
 		SekvojModulePool::settings_->setCurrentPattern(newPattern);
 		currentPattern_ = newPattern;
+		actionDone_ = true;
 		return;
 	}
 	for (unsigned char i = 0; i < 6; i++) {
 		bool newStatus = instrumentSwitches_.getStatus(i);
 		bool oldStatus = SekvojModulePool::settings_->isInstrumentOn(i);
 		if (newStatus != oldStatus) {
+			actionDone_ = true;
 			SekvojModulePool::settings_->setInstrumentOn(i, newStatus);
 			SekvojModulePool::instrumentBar_->setInstrumentSelected(i, newStatus);
 		}

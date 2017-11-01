@@ -22,6 +22,7 @@ class PatternView  : public IView {
 public:
 	void init();
 	virtual void update();
+	bool actionDone();
 private:
 
 	//Controls
@@ -30,8 +31,13 @@ private:
 	LEDRadioButtons panSelectRadioButtons_;
 	unsigned char currentPattern_;
 	unsigned char currentPan_;
+	bool actionDone_;
 
 	void updatePan();
 };
+
+inline bool PatternView::actionDone() {
+	return actionDone_;
+}
 
 #endif /* PATTERNVIEW_H_ */
